@@ -11,6 +11,7 @@ from reportlab.lib.units import cm
 from reportlab.graphics.charts.barcharts import VerticalBarChart
 from reportlab.graphics.charts.legends import Legend
 from reportlab.graphics.charts.lineplots import LinePlot
+from reportlab.graphics import renderPDF
 from reportlab.graphics.shapes import Drawing, String
 from reportlab.graphics.widgets.markers import makeMarker
 from reportlab.pdfbase.cidfonts import UnicodeCIDFont
@@ -485,11 +486,41 @@ def build_curve_section(results: List[Dict[str, object]], styles) -> List:
         blocks.append(Spacer(1, 0.08 * cm))
         blocks.append(loss_curve_drawing(result))
         blocks.append(Spacer(1, 0.18 * cm))
-    blocks.append(paragraph("图 4-6  各模型验证集 F1 收敛对比", styles, "CaptionCN"))
+    blocks.append(paragraph("图 2-6  各模型验证集 F1 收敛对比", styles, "CaptionCN"))
     blocks.append(Spacer(1, 0.08 * cm))
     blocks.append(validation_f1_curve_drawing(results))
     blocks.append(Spacer(1, 0.18 * cm))
     return blocks
+
+
+def export_report_charts(
+    asset_dir: Path,
+    results: Sequence[Dict[str, object]],
+    external_results: Sequence[Dict[str, object]] = None,
+) -> Dict[str, Path]:
+    """把程序直接生成的图表额外导出成独立 PDF 文件。"""
+    asset_dir.mkdir(parents=True, exist_ok=True)
+    exported: Dict[str, Path] = {}
+
+    for result in ordered_main_results(results):
+        path = asset_dir / "{}_loss_curve.pdf".format(result["model_name"])
+        renderPDF.drawToFile(loss_curve_drawing(result), str(path))
+        exported["{}_loss_curve".format(result["model_name"])] = path
+
+    validation_path = asset_dir / "validation_f1_curve.pdf"
+    renderPDF.drawToFile(validation_f1_curve_drawing(results), str(validation_path))
+    exported["validation_f1_curve"] = validation_path
+
+    metric_path = asset_dir / "test_metric_bar_chart.pdf"
+    renderPDF.drawToFile(test_metric_bar_chart(results), str(metric_path))
+    exported["test_metric_bar_chart"] = metric_path
+
+    if external_results:
+        external_path = asset_dir / "external_robustness_chart.pdf"
+        renderPDF.drawToFile(external_robustness_chart(external_results), str(external_path))
+        exported["external_robustness_chart"] = external_path
+
+    return exported
 
 
 def pick_best(results: List[Dict[str, object]]) -> Dict[str, object]:
@@ -592,6 +623,78 @@ def cnn_probability_example_table(styles) -> Table:
         ],
     ]
     table = Table(rows, colWidths=[2.5 * cm, 13.3 * cm])
+    table.setStyle(
+        TableStyle(
+            [
+                ("FONTNAME", (0, 0), (-1, -1), "STSong-Light"),
+                ("BACKGROUND", (0, 0), (-1, 0), colors.HexColor("#EEF5FB")),
+                ("GRID", (0, 0), (-1, -1), 0.5, colors.grey),
+                ("VALIGN", (0, 0), (-1, -1), "TOP"),
+                ("ALIGN", (0, 0), (0, -1), "CENTER"),
+                ("LEFTPADDING", (0, 0), (-1, -1), 6),
+                ("RIGHTPADDING", (0, 0), (-1, -1), 6),
+                ("TOPPADDING", (0, 0), (-1, -1), 5),
+                ("BOTTOMPADDING", (0, 0), (-1, -1), 5),
+            ]
+        )
+    )
+    return table
+
+
+def recurrent_hello_example_table(styles) -> Table:
+    """把“你好”的 RNN/GRU 手算过程整理成表格，便于报告展示。"""
+    rows = [
+        ["模型/步骤", "手算过程"],
+        [
+            paragraph("0. 输入设定", styles, "SmallCN"),
+            paragraph(
+                "句子写作“1 你好”时，前面的 1 是真实标签，真正输入循环模型的文本只有“你好”。为方便手算，把词向量和隐藏状态都压缩成 1 维，设“你”的词向量 x1=0.8，“好”的词向量 x2=0.4，初始隐藏状态 h0=0。真实代码里这些量是向量和矩阵，这里只是把同样的计算逻辑缩成标量。",
+                styles,
+                "SmallCN",
+            ),
+        ],
+        [
+            paragraph("1. RNN 读入“你”", styles, "SmallCN"),
+            paragraph(
+                "普通 RNN 使用 h_t = tanh(Wx x_t + Wh h_(t-1) + b)。若取 Wx=1.0、Wh=0.5、b=0，则 h1 = tanh(1.0 x 0.8 + 0.5 x 0) = tanh(0.8) ≈ 0.664。此时 h1 表示“读完‘你’之后”的状态。",
+                styles,
+                "SmallCN",
+            ),
+        ],
+        [
+            paragraph("2. RNN 读入“好”", styles, "SmallCN"),
+            paragraph(
+                "继续更新得到 h2 = tanh(1.0 x 0.4 + 0.5 x 0.664) = tanh(0.732) ≈ 0.624。因为 h2 同时依赖当前输入 x2 和上一步状态 h1，所以模型得到的是“你好”的整体表征，而不是单独看“好”这个字。",
+                styles,
+                "SmallCN",
+            ),
+        ],
+        [
+            paragraph("3. GRU 读入“你”", styles, "SmallCN"),
+            paragraph(
+                "GRU 在 RNN 基础上增加更新门 z_t 和重置门 r_t。若设 Wz=0.5、Uz=0.5、bz=-0.2，Wr=0.5、Ur=0.5、br=0，Wn=1.0、Un=0.5、bn=0，则 z1=sigmoid(0.2)≈0.550，r1=sigmoid(0.4)≈0.599，n1=tanh(0.8)≈0.664，最终 h1=(1-z1)n1+z1h0≈0.299。也就是说，GRU 第一时刻不会把新信息整块写入，而是先经过门控筛选。",
+                styles,
+                "SmallCN",
+            ),
+        ],
+        [
+            paragraph("4. GRU 读入“好”", styles, "SmallCN"),
+            paragraph(
+                "第二步有 z2=sigmoid(0.1495)≈0.537，r2=sigmoid(0.3495)≈0.586，n2=tanh(0.4 + 0.586 x 0.1495)≈0.452，最终 h2=(1-z2)n2+z2h1≈0.370。这里 z2≈0.537，表示第二步大约保留了 53.7% 的旧状态，只用 46.3% 的比例接收新的候选信息，因此 GRU 比普通 RNN 更擅长保留上下文。",
+                styles,
+                "SmallCN",
+            ),
+        ],
+        [
+            paragraph("5. 与 LSTM 的关系", styles, "SmallCN"),
+            paragraph(
+                "LSTM 的思想与 GRU 相同，也是通过门控控制信息保留，只是它额外维护独立的记忆单元 c_t，并把“写入、遗忘、输出”拆成更多门，因此长期记忆能力通常更强，但结构也更复杂。",
+                styles,
+                "SmallCN",
+            ),
+        ],
+    ]
+    table = Table(rows, colWidths=[2.8 * cm, 13.0 * cm])
     table.setStyle(
         TableStyle(
             [

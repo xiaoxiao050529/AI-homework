@@ -10,7 +10,6 @@ from reportlab.platypus import PageBreak, SimpleDocTemplate, Spacer
 from src.sentiment_hw2.experiment import model_label
 from src.sentiment_hw2.reporting import (
     ablation_table,
-    build_model_diagram_section,
     build_curve_section,
     build_styles,
     external_robustness_chart,
@@ -30,7 +29,6 @@ OUTPUT_DIR = ROOT / "outputs"
 SUMMARY_PATH = OUTPUT_DIR / "experiment_summary.json"
 EXTERNAL_ROBUSTNESS_PATH = OUTPUT_DIR / "external_robustness_metrics.json"
 REPORT_PATH = ROOT / "实验二报告.pdf"
-REPORT_ASSET_DIR = OUTPUT_DIR / "report_assets"
 
 
 def main():
@@ -70,8 +68,16 @@ def main():
         styles,
     ))
 
-    story.append(paragraph("2. 模型结构图与说明", styles, "HeadingCN"))
-    story.extend(build_model_diagram_section(REPORT_ASSET_DIR, styles))
+    story.append(paragraph("2. 训练过程与结果图表", styles, "HeadingCN"))
+    story.append(paragraph(
+        "本报告中的图表均由程序直接读取 `outputs/experiment_summary.json` 中保存的训练历史与评估指标后生成，不再使用手工绘制的结构示意图。",
+        styles,
+    ))
+    story.extend(build_curve_section(results, styles))
+    story.append(paragraph("图 2-7  主模型测试集 Accuracy/F1 对比", styles, "CaptionCN"))
+    story.append(Spacer(1, 0.08 * cm))
+    story.append(test_metric_bar_chart(results))
+    story.append(Spacer(1, 0.12 * cm))
 
     story.append(paragraph("3. 实验参数总表", styles, "HeadingCN"))
     story.append(paragraph(
@@ -80,9 +86,8 @@ def main():
     ))
     story.append(parameter_table(results))
     story.append(Spacer(1, 0.2 * cm))
-    story.extend(build_curve_section(results, styles))
 
-    story.append(paragraph("5. 实验结果展示", styles, "HeadingCN"))
+    story.append(paragraph("4. 实验结果展示", styles, "HeadingCN"))
     story.append(metric_table(results))
     story.append(Spacer(1, 0.2 * cm))
     story.append(paragraph(
@@ -93,10 +98,6 @@ def main():
         ),
         styles,
     ))
-    story.append(paragraph("图 5-1  主模型测试集 Accuracy/F1 对比", styles, "CaptionCN"))
-    story.append(Spacer(1, 0.08 * cm))
-    story.append(test_metric_bar_chart(results))
-    story.append(Spacer(1, 0.12 * cm))
     story.append(paragraph(
         "柱状图把表格中的差异直接可视化了出来：<b>{}</b> 的测试集 F1 最高，<b>{}</b> 与其非常接近；而 <b>{}</b> 在五个主模型中相对最低。这说明门控循环结构在本任务上整体更稳，但 MLP 这个均值池化 baseline 也已经非常有竞争力。".format(
             model_label(max(results, key=lambda item: item["test"]["f1"])["model_name"]),
@@ -106,7 +107,7 @@ def main():
         styles,
     ))
 
-    story.append(paragraph("6. 参数对比分析", styles, "HeadingCN"))
+    story.append(paragraph("5. 参数对比分析", styles, "HeadingCN"))
     story.append(ablation_table(ablations))
     story.append(Spacer(1, 0.2 * cm))
     story.append(paragraph(
@@ -114,13 +115,13 @@ def main():
         styles,
     ))
 
-    story.append(paragraph("7. 模型比较与原因分析", styles, "HeadingCN"))
+    story.append(paragraph("6. 模型比较与原因分析", styles, "HeadingCN"))
     story.append(paragraph(
         "MLP 通过平均池化快速聚合句向量，训练速度最快、结构最简单，但会丢失词序和局部搭配信息，因此更适合作为基础 baseline。TextCNN 对“非常 失望”“剧情 混乱”这类局部情感短语尤其敏感，参数共享带来较强的效率和泛化能力。BiRNN、BiLSTM 和 BiGRU 则显式建模上下文顺序，更适合处理依赖前后语义的长句；其中 BiLSTM 的门控记忆最完整，BiGRU 在效果和效率之间折中得更明显。",
         styles,
     ))
 
-    story.append(paragraph("8. 问题思考", styles, "HeadingCN"))
+    story.append(paragraph("7. 问题思考", styles, "HeadingCN"))
     story.append(paragraph(
         "（1）训练何时停止最合适：本实验采用“验证集 F1 早停”。固定迭代次数实现简单，但容易在不同模型和参数下出现欠拟合或过拟合；基于验证集的早停能更贴近泛化能力，不过需要额外划分验证集并增加调参开销。",
         styles,
@@ -136,7 +137,7 @@ def main():
         styles,
     ))
     story.append(paragraph(
-        "（2）参数初始化：PAD 向量置零；命中预训练词向量的词直接加载；未命中的词使用与预训练分布同尺度的随机初始化。线性层输入权重使用 Xavier 初始化，卷积层使用 Kaiming 初始化，GRU 的隐藏到隐藏权重使用正交初始化，偏置初始化为 0。这样能在保持数值稳定的同时，更贴合不同层的计算特性。",
+        "（2）参数初始化：PAD 向量置零；命中预训练词向量的词直接加载；未命中的词使用与预训练分布同尺度的随机初始化。线性层输入权重使用 Xavier 初始化，卷积层使用 Kaiming 初始化，RNN/LSTM/GRU 的隐藏到隐藏权重使用正交初始化，偏置初始化为 0。这样能在保持数值稳定的同时，更贴合不同层的计算特性。",
         styles,
     ))
     story.append(paragraph(
@@ -189,7 +190,7 @@ def main():
         ))
 
     story.append(PageBreak())
-    story.append(paragraph("9. 心得体会", styles, "HeadingCN"))
+    story.append(paragraph("8. 心得体会", styles, "HeadingCN"))
     story.append(paragraph(
         "本次实验让我更直观地体会到：在已经有较好词向量表示的前提下，结构设计的核心差异并不在“能不能学到语义”，而在“如何组织语义”。MLP 更像低成本平均，TextCNN 更偏向抓取情绪触发片段，BiRNN/BiLSTM/BiGRU 更强调上下文流动。真正决定实验质量的，除了模型结构，还包括数据清洗、初始化策略、验证集早停、参数对比和曲线分析是否严谨。",
         styles,
