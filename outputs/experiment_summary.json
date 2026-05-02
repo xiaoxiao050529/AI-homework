@@ -1,0 +1,779 @@
+{
+  "device": "cpu",
+  "data": {
+    "max_len": 80,
+    "embedding_dim": 50,
+    "train_size": 19998,
+    "validation_size": 5629,
+    "test_size": 369,
+    "train_token_coverage": 0.9717837113076685,
+    "vocab_coverage": 0.8300241858372237,
+    "oov_ratio": 0.16999137575462148,
+    "vocab_size": 53339
+  },
+  "results": [
+    {
+      "model_name": "mlp",
+      "best_epoch": 7,
+      "parameter_count": 2673736,
+      "train_seconds": 29.65346074104309,
+      "validation": {
+        "accuracy": 0.8466868004974241,
+        "precision": 0.8401396160558464,
+        "recall": 0.8559743954480796,
+        "f1": 0.8479830896600318,
+        "tp": 2407,
+        "tn": 2359,
+        "fp": 458,
+        "fn": 405,
+        "loss": 0.3612453594081121
+      },
+      "test": {
+        "accuracy": 0.8644986449864499,
+        "precision": 0.8914285714285715,
+        "recall": 0.8342245989304813,
+        "f1": 0.861878453038674,
+        "tp": 156,
+        "tn": 163,
+        "fp": 19,
+        "fn": 31,
+        "loss": 0.3124232632600195
+      },
+      "history": [
+        {
+          "epoch": 1,
+          "train_loss": 0.6037803523653041,
+          "validation_loss": 0.47991418823676585,
+          "validation_accuracy": 0.7811334162373423,
+          "validation_f1": 0.7928715534633489,
+          "lr": 0.001
+        },
+        {
+          "epoch": 2,
+          "train_loss": 0.4728436849691687,
+          "validation_loss": 0.4107383789008539,
+          "validation_accuracy": 0.8141765855391722,
+          "validation_f1": 0.8139452152258982,
+          "lr": 0.001
+        },
+        {
+          "epoch": 3,
+          "train_loss": 0.4091794720106404,
+          "validation_loss": 0.38072347929537415,
+          "validation_accuracy": 0.8301652158465092,
+          "validation_f1": 0.8284894151417294,
+          "lr": 0.001
+        },
+        {
+          "epoch": 4,
+          "train_loss": 0.35513536203609775,
+          "validation_loss": 0.3618649626989563,
+          "validation_accuracy": 0.8383371824480369,
+          "validation_f1": 0.8373838456040027,
+          "lr": 0.001
+        },
+        {
+          "epoch": 5,
+          "train_loss": 0.31297810381800545,
+          "validation_loss": 0.35500114670674865,
+          "validation_accuracy": 0.8429561200923787,
+          "validation_f1": 0.8436505129112133,
+          "lr": 0.001
+        },
+        {
+          "epoch": 6,
+          "train_loss": 0.27709555150819,
+          "validation_loss": 0.3527936793428307,
+          "validation_accuracy": 0.8468644519452834,
+          "validation_f1": 0.8470003549875754,
+          "lr": 0.001
+        },
+        {
+          "epoch": 7,
+          "train_loss": 0.23877526732078372,
+          "validation_loss": 0.3612453594081121,
+          "validation_accuracy": 0.8466868004974241,
+          "validation_f1": 0.8479830896600318,
+          "lr": 0.001
+        },
+        {
+          "epoch": 8,
+          "train_loss": 0.20948853529933834,
+          "validation_loss": 0.3710533577302227,
+          "validation_accuracy": 0.844910286018831,
+          "validation_f1": 0.8429573664328117,
+          "lr": 0.001
+        },
+        {
+          "epoch": 9,
+          "train_loss": 0.1828359311023871,
+          "validation_loss": 0.3896129870313081,
+          "validation_accuracy": 0.84011369692663,
+          "validation_f1": 0.8378962536023055,
+          "lr": 0.0005
+        },
+        {
+          "epoch": 10,
+          "train_loss": 0.15030247298213575,
+          "validation_loss": 0.402483822530022,
+          "validation_accuracy": 0.8392254396873334,
+          "validation_f1": 0.8387096774193548,
+          "lr": 0.0005
+        }
+      ],
+      "checkpoint": "/home/bingxing2/home/scx9kyg/research/AI-homework/outputs/mlp_best.pt"
+    },
+    {
+      "model_name": "cnn",
+      "best_epoch": 2,
+      "parameter_count": 2744904,
+      "train_seconds": 95.44481492042542,
+      "validation": {
+        "accuracy": 0.8424231657488008,
+        "precision": 0.8426486294054824,
+        "recall": 0.8417496443812233,
+        "f1": 0.8421988969934177,
+        "tp": 2367,
+        "tn": 2375,
+        "fp": 442,
+        "fn": 445,
+        "loss": 0.3667940085650888
+      },
+      "test": {
+        "accuracy": 0.8536585365853658,
+        "precision": 0.8757062146892656,
+        "recall": 0.8288770053475936,
+        "f1": 0.8516483516483517,
+        "tp": 155,
+        "tn": 160,
+        "fp": 22,
+        "fn": 32,
+        "loss": 0.3463011273362126
+      },
+      "history": [
+        {
+          "epoch": 1,
+          "train_loss": 0.3955598691932344,
+          "validation_loss": 0.3677906340107568,
+          "validation_accuracy": 0.8399360454787707,
+          "validation_f1": 0.8392506690454951,
+          "lr": 0.001
+        },
+        {
+          "epoch": 2,
+          "train_loss": 0.2619696847154851,
+          "validation_loss": 0.3667940085650888,
+          "validation_accuracy": 0.8424231657488008,
+          "validation_f1": 0.8421988969934177,
+          "lr": 0.001
+        },
+        {
+          "epoch": 3,
+          "train_loss": 0.19411824077609205,
+          "validation_loss": 0.3869059260244331,
+          "validation_accuracy": 0.8399360454787707,
+          "validation_f1": 0.8420129756268631,
+          "lr": 0.001
+        },
+        {
+          "epoch": 4,
+          "train_loss": 0.12692657167022856,
+          "validation_loss": 0.42792489226238406,
+          "validation_accuracy": 0.8381595310001777,
+          "validation_f1": 0.835053413000181,
+          "lr": 0.0005
+        },
+        {
+          "epoch": 5,
+          "train_loss": 0.07239313455152684,
+          "validation_loss": 0.45997344970512527,
+          "validation_accuracy": 0.8326523361165393,
+          "validation_f1": 0.8313641245972073,
+          "lr": 0.0005
+        }
+      ],
+      "checkpoint": "/home/bingxing2/home/scx9kyg/research/AI-homework/outputs/cnn_best.pt"
+    },
+    {
+      "model_name": "birnn",
+      "best_epoch": 1,
+      "parameter_count": 2713544,
+      "train_seconds": 108.49303126335144,
+      "validation": {
+        "accuracy": 0.8422455143009415,
+        "precision": 0.825,
+        "recall": 0.868421052631579,
+        "f1": 0.8461538461538461,
+        "tp": 2442,
+        "tn": 2299,
+        "fp": 518,
+        "fn": 370,
+        "loss": 0.3828211163443133
+      },
+      "test": {
+        "accuracy": 0.8401084010840109,
+        "precision": 0.8595505617977528,
+        "recall": 0.8181818181818182,
+        "f1": 0.8383561643835616,
+        "tp": 153,
+        "tn": 157,
+        "fp": 25,
+        "fn": 34,
+        "loss": 0.3378778893934679
+      },
+      "history": [
+        {
+          "epoch": 1,
+          "train_loss": 0.28549875275041237,
+          "validation_loss": 0.3828211163443133,
+          "validation_accuracy": 0.8422455143009415,
+          "validation_f1": 0.8461538461538461,
+          "lr": 0.0008
+        },
+        {
+          "epoch": 2,
+          "train_loss": 0.19613381114044431,
+          "validation_loss": 0.45381943010313935,
+          "validation_accuracy": 0.8349618049387103,
+          "validation_f1": 0.8430478121304273,
+          "lr": 0.0008
+        },
+        {
+          "epoch": 3,
+          "train_loss": 0.13353046204986804,
+          "validation_loss": 0.569982536776406,
+          "validation_accuracy": 0.836027713625866,
+          "validation_f1": 0.8333634230005416,
+          "lr": 0.0004
+        },
+        {
+          "epoch": 4,
+          "train_loss": 0.05275207052095057,
+          "validation_loss": 0.7189477505279829,
+          "validation_accuracy": 0.8305205187422278,
+          "validation_f1": 0.8288482238966631,
+          "lr": 0.0004
+        }
+      ],
+      "checkpoint": "/home/bingxing2/home/scx9kyg/research/AI-homework/outputs/birnn_best.pt"
+    },
+    {
+      "model_name": "bilstm",
+      "best_epoch": 1,
+      "parameter_count": 2851784,
+      "train_seconds": 383.68030881881714,
+      "validation": {
+        "accuracy": 0.8427784686445194,
+        "precision": 0.8214881548214882,
+        "recall": 0.8755334281650071,
+        "f1": 0.8476501979686694,
+        "tp": 2462,
+        "tn": 2282,
+        "fp": 535,
+        "fn": 350,
+        "loss": 0.3650905511099273
+      },
+      "test": {
+        "accuracy": 0.8617886178861789,
+        "precision": 0.8695652173913043,
+        "recall": 0.8556149732620321,
+        "f1": 0.862533692722372,
+        "tp": 160,
+        "tn": 158,
+        "fp": 24,
+        "fn": 27,
+        "loss": 0.31941617544750533
+      },
+      "history": [
+        {
+          "epoch": 1,
+          "train_loss": 0.3016808191404687,
+          "validation_loss": 0.3650905511099273,
+          "validation_accuracy": 0.8427784686445194,
+          "validation_f1": 0.8476501979686694,
+          "lr": 0.0008
+        },
+        {
+          "epoch": 2,
+          "train_loss": 0.2038166541384511,
+          "validation_loss": 0.4161870747111072,
+          "validation_accuracy": 0.8408243027180672,
+          "validation_f1": 0.8428621536303051,
+          "lr": 0.0008
+        },
+        {
+          "epoch": 3,
+          "train_loss": 0.14384249223209714,
+          "validation_loss": 0.4820236294249231,
+          "validation_accuracy": 0.8354947592822881,
+          "validation_f1": 0.839403399236906,
+          "lr": 0.0004
+        },
+        {
+          "epoch": 4,
+          "train_loss": 0.07473995436550361,
+          "validation_loss": 0.5899128712797106,
+          "validation_accuracy": 0.8331852904601172,
+          "validation_f1": 0.8322914806215396,
+          "lr": 0.0004
+        }
+      ],
+      "checkpoint": "/home/bingxing2/home/scx9kyg/research/AI-homework/outputs/bilstm_best.pt"
+    },
+    {
+      "model_name": "bigru",
+      "best_epoch": 1,
+      "parameter_count": 2805704,
+      "train_seconds": 280.4970488548279,
+      "validation": {
+        "accuracy": 0.839580742583052,
+        "precision": 0.8147049126277613,
+        "recall": 0.8787339971550497,
+        "f1": 0.8455089820359281,
+        "tp": 2471,
+        "tn": 2255,
+        "fp": 562,
+        "fn": 341,
+        "loss": 0.36907316303037163
+      },
+      "test": {
+        "accuracy": 0.8509485094850948,
+        "precision": 0.8548387096774194,
+        "recall": 0.8502673796791443,
+        "f1": 0.8525469168900804,
+        "tp": 159,
+        "tn": 155,
+        "fp": 27,
+        "fn": 28,
+        "loss": 0.3245281716026265
+      },
+      "history": [
+        {
+          "epoch": 1,
+          "train_loss": 0.2986410047927133,
+          "validation_loss": 0.36907316303037163,
+          "validation_accuracy": 0.839580742583052,
+          "validation_f1": 0.8455089820359281,
+          "lr": 0.0008
+        },
+        {
+          "epoch": 2,
+          "train_loss": 0.20196756220111872,
+          "validation_loss": 0.4010921143568479,
+          "validation_accuracy": 0.8413572570616451,
+          "validation_f1": 0.8445063555632943,
+          "lr": 0.0008
+        },
+        {
+          "epoch": 3,
+          "train_loss": 0.13391324877291874,
+          "validation_loss": 0.5102717890835164,
+          "validation_accuracy": 0.8349618049387103,
+          "validation_f1": 0.8376725493622227,
+          "lr": 0.0004
+        },
+        {
+          "epoch": 4,
+          "train_loss": 0.05910544915616375,
+          "validation_loss": 0.6331421328620179,
+          "validation_accuracy": 0.8308758216379464,
+          "validation_f1": 0.8291457286432161,
+          "lr": 0.0004
+        }
+      ],
+      "checkpoint": "/home/bingxing2/home/scx9kyg/research/AI-homework/outputs/bigru_best.pt"
+    }
+  ],
+  "ablations": [
+    {
+      "model_name": "cnn_num_filters_64",
+      "best_epoch": 2,
+      "parameter_count": 2705928,
+      "train_seconds": 57.495646715164185,
+      "validation": {
+        "accuracy": 0.8410019541659265,
+        "precision": 0.8429338103756708,
+        "recall": 0.8378378378378378,
+        "f1": 0.840378098805065,
+        "tp": 2356,
+        "tn": 2378,
+        "fp": 439,
+        "fn": 456,
+        "loss": 0.37201892078547566
+      },
+      "test": {
+        "accuracy": 0.8509485094850948,
+        "precision": 0.8666666666666667,
+        "recall": 0.8342245989304813,
+        "f1": 0.8501362397820164,
+        "tp": 156,
+        "tn": 158,
+        "fp": 24,
+        "fn": 31,
+        "loss": 0.35570394847451187
+      },
+      "history": [
+        {
+          "epoch": 1,
+          "train_loss": 0.4205873868789467,
+          "validation_loss": 0.375689985893361,
+          "validation_accuracy": 0.836560667969444,
+          "validation_f1": 0.8364735158194099,
+          "lr": 0.001
+        },
+        {
+          "epoch": 2,
+          "train_loss": 0.2822758046091825,
+          "validation_loss": 0.37201892078547566,
+          "validation_accuracy": 0.8410019541659265,
+          "validation_f1": 0.840378098805065,
+          "lr": 0.001
+        },
+        {
+          "epoch": 3,
+          "train_loss": 0.20769696222274156,
+          "validation_loss": 0.3921355123438575,
+          "validation_accuracy": 0.8346065020429917,
+          "validation_f1": 0.8357155461443445,
+          "lr": 0.001
+        },
+        {
+          "epoch": 4,
+          "train_loss": 0.1408468162012596,
+          "validation_loss": 0.4329248322043247,
+          "validation_accuracy": 0.8330076390122579,
+          "validation_f1": 0.8316618911174786,
+          "lr": 0.0005
+        }
+      ],
+      "checkpoint": "/home/bingxing2/home/scx9kyg/research/AI-homework/outputs/cnn_num_filters_64_best.pt"
+    },
+    {
+      "model_name": "birnn_hidden_64",
+      "best_epoch": 1,
+      "parameter_count": 2682056,
+      "train_seconds": 62.882447957992554,
+      "validation": {
+        "accuracy": 0.83247468466868,
+        "precision": 0.8068965517241379,
+        "recall": 0.8737553342816501,
+        "f1": 0.838996073074953,
+        "tp": 2457,
+        "tn": 2229,
+        "fp": 588,
+        "fn": 355,
+        "loss": 0.3835896596982268
+      },
+      "test": {
+        "accuracy": 0.8319783197831978,
+        "precision": 0.8453038674033149,
+        "recall": 0.8181818181818182,
+        "f1": 0.8315217391304347,
+        "tp": 153,
+        "tn": 154,
+        "fp": 28,
+        "fn": 34,
+        "loss": 0.3511181090905414
+      },
+      "history": [
+        {
+          "epoch": 1,
+          "train_loss": 0.3172194730378304,
+          "validation_loss": 0.3835896596982268,
+          "validation_accuracy": 0.83247468466868,
+          "validation_f1": 0.838996073074953,
+          "lr": 0.0008
+        },
+        {
+          "epoch": 2,
+          "train_loss": 0.19697809075400738,
+          "validation_loss": 0.3881060444381102,
+          "validation_accuracy": 0.8299875643986498,
+          "validation_f1": 0.8325459317585302,
+          "lr": 0.0008
+        },
+        {
+          "epoch": 3,
+          "train_loss": 0.10922336169663924,
+          "validation_loss": 0.5298338060396818,
+          "validation_accuracy": 0.8290993071593533,
+          "validation_f1": 0.8300953726598375,
+          "lr": 0.0004
+        }
+      ],
+      "checkpoint": "/home/bingxing2/home/scx9kyg/research/AI-homework/outputs/birnn_hidden_64_best.pt"
+    },
+    {
+      "model_name": "bilstm_hidden_64",
+      "best_epoch": 1,
+      "parameter_count": 2726600,
+      "train_seconds": 164.3566300868988,
+      "validation": {
+        "accuracy": 0.844910286018831,
+        "precision": 0.8300987402110998,
+        "recall": 0.8669985775248933,
+        "f1": 0.8481475039137241,
+        "tp": 2438,
+        "tn": 2318,
+        "fp": 499,
+        "fn": 374,
+        "loss": 0.3615501590892421
+      },
+      "test": {
+        "accuracy": 0.8428184281842819,
+        "precision": 0.856353591160221,
+        "recall": 0.8288770053475936,
+        "f1": 0.8423913043478262,
+        "tp": 155,
+        "tn": 156,
+        "fp": 26,
+        "fn": 32,
+        "loss": 0.3324035854358983
+      },
+      "history": [
+        {
+          "epoch": 1,
+          "train_loss": 0.33272098765896374,
+          "validation_loss": 0.3615501590892421,
+          "validation_accuracy": 0.844910286018831,
+          "validation_f1": 0.8481475039137241,
+          "lr": 0.0008
+        },
+        {
+          "epoch": 2,
+          "train_loss": 0.20908618419811073,
+          "validation_loss": 0.3665396424609659,
+          "validation_accuracy": 0.8450879374666903,
+          "validation_f1": 0.8425424340917299,
+          "lr": 0.0008
+        },
+        {
+          "epoch": 3,
+          "train_loss": 0.1377787407335251,
+          "validation_loss": 0.40618754223155856,
+          "validation_accuracy": 0.8392254396873334,
+          "validation_f1": 0.8374348841386744,
+          "lr": 0.0004
+        }
+      ],
+      "checkpoint": "/home/bingxing2/home/scx9kyg/research/AI-homework/outputs/bilstm_hidden_64_best.pt"
+    },
+    {
+      "model_name": "bigru_hidden_64",
+      "best_epoch": 1,
+      "parameter_count": 2711752,
+      "train_seconds": 132.38100361824036,
+      "validation": {
+        "accuracy": 0.8427784686445194,
+        "precision": 0.8238655462184874,
+        "recall": 0.8716216216216216,
+        "f1": 0.847071021254536,
+        "tp": 2451,
+        "tn": 2293,
+        "fp": 524,
+        "fn": 361,
+        "loss": 0.36505858587697715
+      },
+      "test": {
+        "accuracy": 0.8428184281842819,
+        "precision": 0.856353591160221,
+        "recall": 0.8288770053475936,
+        "f1": 0.8423913043478262,
+        "tp": 155,
+        "tn": 156,
+        "fp": 26,
+        "fn": 32,
+        "loss": 0.3333626396772338
+      },
+      "history": [
+        {
+          "epoch": 1,
+          "train_loss": 0.32250402342773626,
+          "validation_loss": 0.36505858587697715,
+          "validation_accuracy": 0.8427784686445194,
+          "validation_f1": 0.847071021254536,
+          "lr": 0.0008
+        },
+        {
+          "epoch": 2,
+          "train_loss": 0.2051593524546656,
+          "validation_loss": 0.37212776335121406,
+          "validation_accuracy": 0.843133771540238,
+          "validation_f1": 0.8393669274149536,
+          "lr": 0.0008
+        },
+        {
+          "epoch": 3,
+          "train_loss": 0.12742195466999198,
+          "validation_loss": 0.4175685998240973,
+          "validation_accuracy": 0.8379818795523184,
+          "validation_f1": 0.8390966831333804,
+          "lr": 0.0004
+        }
+      ],
+      "checkpoint": "/home/bingxing2/home/scx9kyg/research/AI-homework/outputs/bigru_hidden_64_best.pt"
+    }
+  ],
+  "robustness": {
+    "mlp": [
+      {
+        "text": "剧情 紧凑 节奏 明快 演员 表现 很 出色 这部 电影 值得 推荐",
+        "gold": 1,
+        "prediction": 0
+      },
+      {
+        "text": "故事 拖沓 剪辑 混乱 看 完 只 想 立刻 退场",
+        "gold": 0,
+        "prediction": 1
+      },
+      {
+        "text": "虽然 成本 不高 但是 情感 真挚 细节 打动 人",
+        "gold": 1,
+        "prediction": 0
+      },
+      {
+        "text": "台词 空洞 表演 生硬 配乐 也 非常 吵闹",
+        "gold": 0,
+        "prediction": 1
+      },
+      {
+        "text": "前半段 稍慢 后半段 反转 精彩 整体 超出 预期",
+        "gold": 1,
+        "prediction": 0
+      },
+      {
+        "text": "宣传 很 热闹 实际 内容 乏味 完全 浪费 时间",
+        "gold": 0,
+        "prediction": 1
+      }
+    ],
+    "cnn": [
+      {
+        "text": "剧情 紧凑 节奏 明快 演员 表现 很 出色 这部 电影 值得 推荐",
+        "gold": 1,
+        "prediction": 0
+      },
+      {
+        "text": "故事 拖沓 剪辑 混乱 看 完 只 想 立刻 退场",
+        "gold": 0,
+        "prediction": 1
+      },
+      {
+        "text": "虽然 成本 不高 但是 情感 真挚 细节 打动 人",
+        "gold": 1,
+        "prediction": 0
+      },
+      {
+        "text": "台词 空洞 表演 生硬 配乐 也 非常 吵闹",
+        "gold": 0,
+        "prediction": 1
+      },
+      {
+        "text": "前半段 稍慢 后半段 反转 精彩 整体 超出 预期",
+        "gold": 1,
+        "prediction": 0
+      },
+      {
+        "text": "宣传 很 热闹 实际 内容 乏味 完全 浪费 时间",
+        "gold": 0,
+        "prediction": 1
+      }
+    ],
+    "birnn": [
+      {
+        "text": "剧情 紧凑 节奏 明快 演员 表现 很 出色 这部 电影 值得 推荐",
+        "gold": 1,
+        "prediction": 0
+      },
+      {
+        "text": "故事 拖沓 剪辑 混乱 看 完 只 想 立刻 退场",
+        "gold": 0,
+        "prediction": 1
+      },
+      {
+        "text": "虽然 成本 不高 但是 情感 真挚 细节 打动 人",
+        "gold": 1,
+        "prediction": 0
+      },
+      {
+        "text": "台词 空洞 表演 生硬 配乐 也 非常 吵闹",
+        "gold": 0,
+        "prediction": 1
+      },
+      {
+        "text": "前半段 稍慢 后半段 反转 精彩 整体 超出 预期",
+        "gold": 1,
+        "prediction": 0
+      },
+      {
+        "text": "宣传 很 热闹 实际 内容 乏味 完全 浪费 时间",
+        "gold": 0,
+        "prediction": 1
+      }
+    ],
+    "bilstm": [
+      {
+        "text": "剧情 紧凑 节奏 明快 演员 表现 很 出色 这部 电影 值得 推荐",
+        "gold": 1,
+        "prediction": 0
+      },
+      {
+        "text": "故事 拖沓 剪辑 混乱 看 完 只 想 立刻 退场",
+        "gold": 0,
+        "prediction": 1
+      },
+      {
+        "text": "虽然 成本 不高 但是 情感 真挚 细节 打动 人",
+        "gold": 1,
+        "prediction": 0
+      },
+      {
+        "text": "台词 空洞 表演 生硬 配乐 也 非常 吵闹",
+        "gold": 0,
+        "prediction": 1
+      },
+      {
+        "text": "前半段 稍慢 后半段 反转 精彩 整体 超出 预期",
+        "gold": 1,
+        "prediction": 0
+      },
+      {
+        "text": "宣传 很 热闹 实际 内容 乏味 完全 浪费 时间",
+        "gold": 0,
+        "prediction": 1
+      }
+    ],
+    "bigru": [
+      {
+        "text": "剧情 紧凑 节奏 明快 演员 表现 很 出色 这部 电影 值得 推荐",
+        "gold": 1,
+        "prediction": 0
+      },
+      {
+        "text": "故事 拖沓 剪辑 混乱 看 完 只 想 立刻 退场",
+        "gold": 0,
+        "prediction": 1
+      },
+      {
+        "text": "虽然 成本 不高 但是 情感 真挚 细节 打动 人",
+        "gold": 1,
+        "prediction": 0
+      },
+      {
+        "text": "台词 空洞 表演 生硬 配乐 也 非常 吵闹",
+        "gold": 0,
+        "prediction": 1
+      },
+      {
+        "text": "前半段 稍慢 后半段 反转 精彩 整体 超出 预期",
+        "gold": 1,
+        "prediction": 0
+      },
+      {
+        "text": "宣传 很 热闹 实际 内容 乏味 完全 浪费 时间",
+        "gold": 0,
+        "prediction": 1
+      }
+    ]
+  }
+}

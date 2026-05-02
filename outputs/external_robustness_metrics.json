@@ -1,0 +1,160 @@
+{
+  "external_dataset": {
+    "source_name": "weibo2018",
+    "source_url": "https://github.com/Neal-Bailey/weibo2018.git",
+    "created_at_utc": "2026-05-02T17:21:07.278153+00:00",
+    "sample_size": 100,
+    "per_label": 50,
+    "seed": 42,
+    "domain": "weibo_post",
+    "task_note": "cross-domain robustness evaluation for Chinese sentiment classification",
+    "files": {
+      "txt": "/home/bingxing2/home/scx9kyg/research/AI-homework/external_data/weibo_sentiment_100.txt",
+      "jsonl": "/home/bingxing2/home/scx9kyg/research/AI-homework/external_data/weibo_sentiment_100.jsonl"
+    }
+  },
+  "external_stats": {
+    "sample_size": 100,
+    "max_len": 80,
+    "known_tokens": 2619,
+    "total_tokens": 4769,
+    "token_coverage": 0.5491717341161669
+  },
+  "results": [
+    {
+      "model_name": "mlp",
+      "test_metrics": {
+        "accuracy": 0.8644986449864499,
+        "precision": 0.8914285714285715,
+        "recall": 0.8342245989304813,
+        "f1": 0.861878453038674,
+        "tp": 156,
+        "tn": 163,
+        "fp": 19,
+        "fn": 31,
+        "loss": 0.3124232632600195
+      },
+      "external_metrics": {
+        "accuracy": 0.31,
+        "precision": 0.1935483870967742,
+        "recall": 0.12,
+        "f1": 0.14814814814814814,
+        "tp": 6,
+        "tn": 25,
+        "fp": 25,
+        "fn": 44,
+        "loss": 1.4654825925827026
+      },
+      "accuracy_drop": 0.55449864498645,
+      "f1_drop": 0.7137303048905259
+    },
+    {
+      "model_name": "cnn",
+      "test_metrics": {
+        "accuracy": 0.8536585365853658,
+        "precision": 0.8757062146892656,
+        "recall": 0.8288770053475936,
+        "f1": 0.8516483516483517,
+        "tp": 155,
+        "tn": 160,
+        "fp": 22,
+        "fn": 32,
+        "loss": 0.3463011273362126
+      },
+      "external_metrics": {
+        "accuracy": 0.27,
+        "precision": 0.1891891891891892,
+        "recall": 0.14,
+        "f1": 0.16091954022988506,
+        "tp": 7,
+        "tn": 20,
+        "fp": 30,
+        "fn": 43,
+        "loss": 1.5888062715530396
+      },
+      "accuracy_drop": 0.5836585365853658,
+      "f1_drop": 0.6907288114184666
+    },
+    {
+      "model_name": "birnn",
+      "test_metrics": {
+        "accuracy": 0.8401084010840109,
+        "precision": 0.8595505617977528,
+        "recall": 0.8181818181818182,
+        "f1": 0.8383561643835616,
+        "tp": 153,
+        "tn": 157,
+        "fp": 25,
+        "fn": 34,
+        "loss": 0.3378778893934679
+      },
+      "external_metrics": {
+        "accuracy": 0.32,
+        "precision": 0.275,
+        "recall": 0.22,
+        "f1": 0.24444444444444446,
+        "tp": 11,
+        "tn": 21,
+        "fp": 29,
+        "fn": 39,
+        "loss": 1.7306971549987793
+      },
+      "accuracy_drop": 0.5201084010840109,
+      "f1_drop": 0.5939117199391172
+    },
+    {
+      "model_name": "bilstm",
+      "test_metrics": {
+        "accuracy": 0.8617886178861789,
+        "precision": 0.8695652173913043,
+        "recall": 0.8556149732620321,
+        "f1": 0.862533692722372,
+        "tp": 160,
+        "tn": 158,
+        "fp": 24,
+        "fn": 27,
+        "loss": 0.31941617544750533
+      },
+      "external_metrics": {
+        "accuracy": 0.31,
+        "precision": 0.28888888888888886,
+        "recall": 0.26,
+        "f1": 0.27368421052631575,
+        "tp": 13,
+        "tn": 18,
+        "fp": 32,
+        "fn": 37,
+        "loss": 1.2724746465682983
+      },
+      "accuracy_drop": 0.5517886178861788,
+      "f1_drop": 0.5888494821960563
+    },
+    {
+      "model_name": "bigru",
+      "test_metrics": {
+        "accuracy": 0.8509485094850948,
+        "precision": 0.8548387096774194,
+        "recall": 0.8502673796791443,
+        "f1": 0.8525469168900804,
+        "tp": 159,
+        "tn": 155,
+        "fp": 27,
+        "fn": 28,
+        "loss": 0.3245281716026265
+      },
+      "external_metrics": {
+        "accuracy": 0.3,
+        "precision": 0.2916666666666667,
+        "recall": 0.28,
+        "f1": 0.2857142857142857,
+        "tp": 14,
+        "tn": 16,
+        "fp": 34,
+        "fn": 36,
+        "loss": 1.2135000228881836
+      },
+      "accuracy_drop": 0.5509485094850948,
+      "f1_drop": 0.5668326311757947
+    }
+  ]
+}

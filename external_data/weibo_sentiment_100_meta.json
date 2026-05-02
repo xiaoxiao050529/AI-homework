@@ -1,0 +1,14 @@
+{
+  "source_name": "weibo2018",
+  "source_url": "https://github.com/Neal-Bailey/weibo2018.git",
+  "created_at_utc": "2026-05-02T17:25:02.016508+00:00",
+  "sample_size": 100,
+  "per_label": 50,
+  "seed": 42,
+  "domain": "weibo_post",
+  "task_note": "cross-domain robustness evaluation for Chinese sentiment classification",
+  "files": {
+    "txt": "/home/bingxing2/home/scx9kyg/research/AI-homework/external_data/weibo_sentiment_100.txt",
+    "jsonl": "/home/bingxing2/home/scx9kyg/research/AI-homework/external_data/weibo_sentiment_100.jsonl"
+  }
+}

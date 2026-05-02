@@ -1,0 +1,57 @@
+{
+  "path": "/home/bingxing2/home/scx9kyg/research/AI-homework/outputs/mlp_best.pt",
+  "root_type": "OrderedDict",
+  "summary": {
+    "embedding.weight": {
+      "type": "Tensor",
+      "shape": [
+        53339,
+        50
+      ],
+      "dtype": "torch.float32",
+      "device": "cpu"
+    },
+    "classifier.0.weight": {
+      "type": "Tensor",
+      "shape": [
+        128,
+        50
+      ],
+      "dtype": "torch.float32",
+      "device": "cpu"
+    },
+    "classifier.0.bias": {
+      "type": "Tensor",
+      "shape": [
+        128
+      ],
+      "dtype": "torch.float32",
+      "device": "cpu"
+    },
+    "classifier.3.weight": {
+      "type": "Tensor",
+      "shape": [
+        2,
+        128
+      ],
+      "dtype": "torch.float32",
+      "device": "cpu"
+    },
+    "classifier.3.bias": {
+      "type": "Tensor",
+      "shape": [
+        2
+      ],
+      "dtype": "torch.float32",
+      "device": "cpu"
+    }
+  },
+  "top_level_keys": [
+    "embedding.weight",
+    "classifier.0.weight",
+    "classifier.0.bias",
+    "classifier.3.weight",
+    "classifier.3.bias"
+  ],
+  "top_level_tensor_count": 5
+}

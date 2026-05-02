@@ -1,0 +1,14 @@
+{
+  "source_name": "ChnSentiCorp_htl_all",
+  "source_url": "https://raw.githubusercontent.com/SophonPlus/ChineseNlpCorpus/master/datasets/ChnSentiCorp_htl_all/ChnSentiCorp_htl_all.csv",
+  "created_at_utc": "2026-05-02T17:13:42.803555+00:00",
+  "sample_size": 100,
+  "per_label": 50,
+  "seed": 42,
+  "domain": "hotel_review",
+  "task_note": "cross-domain robustness evaluation for Chinese sentiment classification",
+  "files": {
+    "txt": "/home/bingxing2/home/scx9kyg/research/AI-homework/external_data/chnsenticorp_hotel_100.txt",
+    "jsonl": "/home/bingxing2/home/scx9kyg/research/AI-homework/external_data/chnsenticorp_hotel_100.jsonl"
+  }
+}

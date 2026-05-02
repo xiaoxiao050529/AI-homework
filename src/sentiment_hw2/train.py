@@ -1,0 +1,218 @@
+"""训练、评估、早停与指标保存逻辑。"""
+
+import copy
+import json
+import random
+import time
+from dataclasses import dataclass
+from pathlib import Path
+from typing import Dict, List, Tuple
+
+import numpy as np
+import torch
+from torch import nn
+from torch.utils.data import DataLoader
+
+from .data import PreparedData, TensorSplitDataset
+from .models import count_parameters
+
+
+@dataclass
+class TrainConfig:
+    """单个模型训练时需要的超参数配置。"""
+    batch_size: int
+    epochs: int
+    learning_rate: float
+    weight_decay: float
+    patience: int
+    grad_clip: float
+    seed: int
+
+
+def set_seed(seed: int) -> None:
+    """同步固定 Python、NumPy 和 PyTorch 的随机种子。"""
+    random.seed(seed)
+    np.random.seed(seed)
+    torch.manual_seed(seed)
+    torch.cuda.manual_seed_all(seed)
+
+
+def create_dataloaders(prepared: PreparedData, batch_size: int) -> Dict[str, DataLoader]:
+    """为训练、验证、测试集构建 DataLoader。"""
+    return {
+        # 只有训练集需要打乱，验证和测试保持稳定顺序即可。
+        "train": DataLoader(TensorSplitDataset(prepared.train), batch_size=batch_size, shuffle=True),
+        "validation": DataLoader(TensorSplitDataset(prepared.validation), batch_size=batch_size, shuffle=False),
+        "test": DataLoader(TensorSplitDataset(prepared.test), batch_size=batch_size, shuffle=False),
+    }
+
+
+def compute_metrics(predictions: np.ndarray, labels: np.ndarray) -> Dict[str, float]:
+    """基于预测标签和真实标签计算分类指标。"""
+    tp = int(((predictions == 1) & (labels == 1)).sum())
+    tn = int(((predictions == 0) & (labels == 0)).sum())
+    fp = int(((predictions == 1) & (labels == 0)).sum())
+    fn = int(((predictions == 0) & (labels == 1)).sum())
+
+    accuracy = float((predictions == labels).mean())
+    precision = tp / float(max(tp + fp, 1))
+    recall = tp / float(max(tp + fn, 1))
+    f1 = 0.0 if precision + recall == 0.0 else 2 * precision * recall / (precision + recall)
+
+    return {
+        "accuracy": accuracy,
+        "precision": precision,
+        "recall": recall,
+        "f1": f1,
+        "tp": tp,
+        "tn": tn,
+        "fp": fp,
+        "fn": fn,
+    }
+
+
+def evaluate(model: nn.Module, loader: DataLoader, criterion: nn.Module, device: torch.device) -> Dict[str, float]:
+    """在验证集或测试集上关闭梯度进行完整评估。"""
+    model.eval()
+    total_loss = 0.0
+    total_count = 0
+    all_predictions: List[np.ndarray] = []
+    all_labels: List[np.ndarray] = []
+
+    with torch.no_grad():
+        for inputs, lengths, labels in loader:
+            inputs = inputs.to(device)
+            lengths = lengths.to(device)
+            labels = labels.to(device)
+            logits = model(inputs, lengths)
+            loss = criterion(logits, labels)
+            batch_size = labels.size(0)
+            total_loss += float(loss.item()) * batch_size
+            total_count += batch_size
+            all_predictions.append(logits.argmax(dim=1).cpu().numpy())
+            all_labels.append(labels.cpu().numpy())
+
+    # 先拼接所有 batch 的结果，再统一计算整套指标。
+    predictions = np.concatenate(all_predictions)
+    labels = np.concatenate(all_labels)
+    metrics = compute_metrics(predictions, labels)
+    metrics["loss"] = total_loss / float(max(total_count, 1))
+    return metrics
+
+
+def train_single_model(
+    model_name: str,
+    model: nn.Module,
+    prepared: PreparedData,
+    config: TrainConfig,
+    device: torch.device,
+    output_dir: Path,
+) -> Dict[str, object]:
+    """训练单个模型，并保存最优 checkpoint 与完整指标。"""
+    set_seed(config.seed)
+    output_dir.mkdir(parents=True, exist_ok=True)
+    checkpoint_path = output_dir / "{}_best.pt".format(model_name)
+
+    loaders = create_dataloaders(prepared, config.batch_size)
+    criterion = nn.CrossEntropyLoss()
+    optimizer = torch.optim.Adam(
+        model.parameters(),
+        lr=config.learning_rate,
+        weight_decay=config.weight_decay,
+    )
+    # 监控验证集 F1，长时间不提升时自动降低学习率。
+    scheduler = torch.optim.lr_scheduler.ReduceLROnPlateau(
+        optimizer, mode="max", factor=0.5, patience=1, verbose=False
+    )
+
+    model.to(device)
+    # 先拷贝一份初始状态，保证极端情况下也有可恢复参数。
+    best_state = copy.deepcopy(model.state_dict())
+    best_metrics = None
+    best_epoch = 0
+    epochs_without_improvement = 0
+    history = []
+    start_time = time.time()
+
+    for epoch in range(1, config.epochs + 1):
+        model.train()
+        running_loss = 0.0
+        seen = 0
+
+        for inputs, lengths, labels in loaders["train"]:
+            inputs = inputs.to(device)
+            lengths = lengths.to(device)
+            labels = labels.to(device)
+
+            optimizer.zero_grad()
+            logits = model(inputs, lengths)
+            loss = criterion(logits, labels)
+            loss.backward()
+            if config.grad_clip > 0:
+                # 循环模型更容易出现梯度爆炸，因此支持按配置裁剪。
+                nn.utils.clip_grad_norm_(model.parameters(), config.grad_clip)
+            optimizer.step()
+
+            batch_size = labels.size(0)
+            running_loss += float(loss.item()) * batch_size
+            seen += batch_size
+
+        train_loss = running_loss / float(max(seen, 1))
+        validation_metrics = evaluate(model, loaders["validation"], criterion, device)
+        scheduler.step(validation_metrics["f1"])
+
+        epoch_record = {
+            "epoch": epoch,
+            "train_loss": train_loss,
+            "validation_loss": validation_metrics["loss"],
+            "validation_accuracy": validation_metrics["accuracy"],
+            "validation_f1": validation_metrics["f1"],
+            "lr": optimizer.param_groups[0]["lr"],
+        }
+        history.append(epoch_record)
+
+        improved = (
+            best_metrics is None
+            or validation_metrics["f1"] > best_metrics["f1"]
+            or (
+                # F1 相同时再比较 Accuracy，避免出现“最佳轮次”不稳定。
+                abs(validation_metrics["f1"] - best_metrics["f1"]) < 1e-8
+                and validation_metrics["accuracy"] > best_metrics["accuracy"]
+            )
+        )
+
+        if improved:
+            best_state = copy.deepcopy(model.state_dict())
+            best_metrics = validation_metrics
+            best_epoch = epoch
+            epochs_without_improvement = 0
+            torch.save(best_state, checkpoint_path)
+        else:
+            epochs_without_improvement += 1
+
+        # 连续若干轮无提升就提前停止，减少无效训练和过拟合风险。
+        if epochs_without_improvement >= config.patience:
+            break
+
+    # 最终统一回滚到验证集表现最好的参数，再做验证/测试汇报。
+    model.load_state_dict(best_state)
+    validation_metrics = evaluate(model, loaders["validation"], criterion, device)
+    test_metrics = evaluate(model, loaders["test"], criterion, device)
+    duration = time.time() - start_time
+
+    result = {
+        "model_name": model_name,
+        "best_epoch": best_epoch,
+        "parameter_count": count_parameters(model),
+        "train_seconds": duration,
+        "validation": validation_metrics,
+        "test": test_metrics,
+        "history": history,
+        "checkpoint": str(checkpoint_path),
+    }
+
+    # 逐模型保存独立指标文件，便于后续报告脚本或人工检查直接读取。
+    with (output_dir / "{}_metrics.json".format(model_name)).open("w", encoding="utf-8") as handle:
+        json.dump(result, handle, ensure_ascii=False, indent=2)
+
+    return result

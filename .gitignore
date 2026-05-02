@@ -1,0 +1,10 @@
+.venv/
+__pycache__/
+*.pyc
+
+outputs/*.pt
+outputs/cache/
+
+external_data/jieba.cache
+
+学号_姓名.pdf

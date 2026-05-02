@@ -1,0 +1,4 @@
+jieba>=0.42
+numpy>=1.21
+reportlab>=3.6,<4.0
+torch==1.13.1
