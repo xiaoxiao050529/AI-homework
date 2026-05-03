@@ -1,5 +1,6 @@
 """逐个超参数进行单变量调参与结果汇总。"""
 
+import argparse
 import copy
 import json
 import os
@@ -46,6 +47,7 @@ class TuningSpec:
 
 def make_tuning_spec(
     *,
+    name_family: str,
     family: str,
     parameter_name: str,
     parameter_value: object,
@@ -59,20 +61,7 @@ def make_tuning_spec(
     if is_baseline:
         name = baseline_name
     else:
-        value_slug = str(parameter_value)
-        for source, target in (
-            (" ", ""),
-            (".", "p"),
-            ("-", "m"),
-            ("(", ""),
-            (")", ""),
-            ("[", ""),
-            ("]", ""),
-            (",", "_"),
-            ("/", "_"),
-        ):
-            value_slug = value_slug.replace(source, target)
-        name = "tune_{}_{}_{}".format(family, parameter_name, value_slug)
+        name = "tune_{}_{}_{}".format(name_family, parameter_name, slugify_value(parameter_value))
     return TuningSpec(
         name=name,
         family=family,
@@ -89,6 +78,19 @@ def make_tuning_spec(
 def listify_filter_sizes(value: Sequence[int]) -> List[int]:
     """把卷积核尺寸统一转成 JSON 友好的列表。"""
     return list(value)
+
+
+def slugify_value(value: object) -> str:
+    """把超参数值转成文件名友好的形式。"""
+    if isinstance(value, float):
+        if value == 0:
+            return "0"
+        if abs(value) < 0.01:
+            return "{:.0e}".format(value).replace("-", "")
+        return str(value).replace(".", "p").replace("-", "m")
+    if isinstance(value, (list, tuple)):
+        return "_".join(slugify_value(item) for item in value)
+    return str(value).replace(" ", "")
 
 
 def build_specs(embedding_matrix: torch.Tensor) -> Dict[str, List[TuningSpec]]:
@@ -133,6 +135,7 @@ def build_specs(embedding_matrix: torch.Tensor) -> Dict[str, List[TuningSpec]]:
 
     family_defs: Dict[str, Dict[str, object]] = {
         "mlp": {
+            "name_family": "mlp",
             "baseline_name": "tune_mlp_base",
             "description": "MLP 基线配置",
             "builder": lambda cfg: MeanPoolMLP(embedding_matrix, **cfg),
@@ -150,6 +153,7 @@ def build_specs(embedding_matrix: torch.Tensor) -> Dict[str, List[TuningSpec]]:
             },
         },
         "cnn": {
+            "name_family": "cnn",
             "baseline_name": "tune_cnn_base",
             "description": "TextCNN 基线配置",
             "builder": lambda cfg: TextCNN(embedding_matrix, **cfg),
@@ -168,6 +172,7 @@ def build_specs(embedding_matrix: torch.Tensor) -> Dict[str, List[TuningSpec]]:
             },
         },
         "birnn": {
+            "name_family": "birnn",
             "baseline_name": "tune_birnn_base",
             "description": "BiRNN 基线配置",
             "builder": lambda cfg: BiRNNClassifier(embedding_matrix, **cfg),
@@ -191,6 +196,7 @@ def build_specs(embedding_matrix: torch.Tensor) -> Dict[str, List[TuningSpec]]:
             },
         },
         "bilstm": {
+            "name_family": "bilstm",
             "baseline_name": "tune_bilstm_base",
             "description": "BiLSTM 基线配置",
             "builder": lambda cfg: BiLSTMClassifier(embedding_matrix, **cfg),
@@ -214,7 +220,8 @@ def build_specs(embedding_matrix: torch.Tensor) -> Dict[str, List[TuningSpec]]:
             },
         },
         "bigru": {
-            "baseline_name": "tune_bigru_base",
+            "name_family": "bigru_v2",
+            "baseline_name": "tune_bigru_v2_base",
             "description": "BiGRU 基线配置",
             "builder": lambda cfg: BiGRUClassifier(embedding_matrix, **cfg),
             "base_model_cfg": copy.deepcopy(recurrent_cfg),
@@ -253,6 +260,7 @@ def build_specs(embedding_matrix: torch.Tensor) -> Dict[str, List[TuningSpec]]:
         baselines.append(
             make_tuning_spec(
                 family=family,
+                name_family=info["name_family"],
                 parameter_name="baseline",
                 parameter_value="default",
                 baseline_name=baseline_name,
@@ -294,6 +302,7 @@ def build_specs(embedding_matrix: torch.Tensor) -> Dict[str, List[TuningSpec]]:
                 variants.append(
                     make_tuning_spec(
                         family=family,
+                        name_family=info["name_family"],
                         parameter_name=parameter_name,
                         parameter_value=normalize_value(candidate),
                         baseline_name=baseline_name,
@@ -346,6 +355,14 @@ def run_or_load(spec: TuningSpec, prepared, device: torch.device) -> Dict[str, o
         device=device,
         output_dir=TUNING_DIR,
     )
+
+
+def load_existing_only(spec: TuningSpec) -> Dict[str, object]:
+    """仅从已有文件读取结果，不触发训练。"""
+    metrics_path = TUNING_DIR / "{}_metrics.json".format(spec.name)
+    if metrics_path.exists():
+        return json.loads(metrics_path.read_text(encoding="utf-8"))
+    return {}
 
 
 def attach_delta(result: Dict[str, object], baseline: Dict[str, object]) -> Dict[str, object]:
@@ -489,7 +506,104 @@ def build_best_by_family(parameter_groups: Sequence[Dict[str, object]]) -> List[
     return output
 
 
+def merge_by_spec_name(
+    current_items: Sequence[Dict[str, object]],
+    previous_items: Sequence[Dict[str, object]],
+) -> List[Dict[str, object]]:
+    """按 spec.name 合并新旧摘要，便于分批执行后汇总。"""
+    merged = {item["spec"]["name"]: item for item in previous_items}
+    for item in current_items:
+        merged[item["spec"]["name"]] = item
+    return list(merged.values())
+
+
+def merge_family_entries(
+    current_items: Sequence[Dict[str, object]],
+    previous_items: Sequence[Dict[str, object]],
+    key: str,
+) -> List[Dict[str, object]]:
+    """按 family 合并家族级汇总信息。"""
+    merged = {item[key]: item for item in previous_items}
+    for item in current_items:
+        merged[item[key]] = item
+    return sorted(merged.values(), key=lambda item: item[key])
+
+
+def load_previous_summary() -> Dict[str, object]:
+    """在分批执行时复用已有摘要的其他模型结果。"""
+    if not SUMMARY_PATH.exists():
+        return {}
+    return json.loads(SUMMARY_PATH.read_text(encoding="utf-8"))
+
+
+def filter_summary_items_by_families(items: Sequence[Dict[str, object]], families: Sequence[Dict[str, object]]) -> List[Dict[str, object]]:
+    """在分批运行时，只保留当前目标模型族对应的历史条目。"""
+    family_set = {item["family"] for item in families}
+    filtered = []
+    for item in items:
+        spec = item.get("spec", {})
+        if spec.get("family") in family_set:
+            filtered.append(item)
+    return filtered
+
+
+def parse_args() -> argparse.Namespace:
+    """支持按模型族分批运行，避免一次性 CPU 训练时间过长。"""
+    parser = argparse.ArgumentParser(description="Single-variable hyperparameter tuning")
+    parser.add_argument(
+        "--families",
+        nargs="+",
+        choices=["mlp", "cnn", "birnn", "bilstm", "bigru"],
+        help="Only run selected model families.",
+    )
+    parser.add_argument(
+        "--parameters",
+        nargs="+",
+        help="Only run selected parameter names within the chosen families.",
+    )
+    parser.add_argument(
+        "--reuse-existing-only",
+        action="store_true",
+        help="Summarize existing metrics only and skip missing experiments.",
+    )
+    return parser.parse_args()
+
+
+def filter_specs(
+    specs: Dict[str, List[TuningSpec]],
+    selected_families: Sequence[str] = None,
+    selected_parameters: Sequence[str] = None,
+) -> Dict[str, List[TuningSpec]]:
+    """按命令行条件筛选要执行的实验，但保留统一输出结构。"""
+    family_set = set(selected_families or [])
+    parameter_set = set(selected_parameters or [])
+
+    if not family_set and not parameter_set:
+        return specs
+
+    baselines = [
+        spec for spec in specs["baselines"]
+        if (not family_set or spec.family in family_set)
+    ]
+    variants = [
+        spec for spec in specs["variants"]
+        if (not family_set or spec.family in family_set)
+        and (not parameter_set or spec.parameter_name in parameter_set)
+    ]
+    families = [
+        item for item in specs["families"]
+        if (not family_set or item["family"] in family_set)
+    ]
+    if parameter_set:
+        for item in families:
+            item["tunable_parameters"] = [
+                name for name in item["tunable_parameters"] if name in parameter_set
+            ]
+    return {"baselines": baselines, "variants": variants, "families": families}
+
+
 def main() -> None:
+    args = parse_args()
     os.environ.setdefault("OMP_NUM_THREADS", "4")
     os.environ.setdefault("MKL_NUM_THREADS", "4")
     os.environ.setdefault("OPENBLAS_NUM_THREADS", "4")
@@ -512,12 +626,17 @@ def main() -> None:
     )
 
     TUNING_DIR.mkdir(parents=True, exist_ok=True)
+    previous_summary = load_previous_summary()
     specs = build_specs(prepared.embedding_matrix)
+    specs = filter_specs(specs, args.families, args.parameters)
 
     baselines: Dict[str, Dict[str, object]] = {}
     baseline_meta: List[Dict[str, object]] = []
     for spec in specs["baselines"]:
-        result = run_or_load(spec, prepared, device)
+        result = load_existing_only(spec) if args.reuse_existing_only else run_or_load(spec, prepared, device)
+        if not result:
+            print("[skip] missing baseline metrics for", spec.name)
+            continue
         payload = {"spec": serialize_spec(spec), "result": result}
         baselines[spec.name] = payload
         baseline_meta.append(payload)
@@ -531,7 +650,13 @@ def main() -> None:
 
     variant_meta: List[Dict[str, object]] = []
     for spec in specs["variants"]:
-        result = run_or_load(spec, prepared, device)
+        if spec.baseline_name not in baselines:
+            print("[skip] baseline not available for", spec.name)
+            continue
+        result = load_existing_only(spec) if args.reuse_existing_only else run_or_load(spec, prepared, device)
+        if not result:
+            print("[skip] missing variant metrics for", spec.name)
+            continue
         baseline = baselines[spec.baseline_name]["result"]
         enriched = attach_delta(result, baseline)
         payload = {"spec": serialize_spec(spec), "result": enriched}
@@ -547,6 +672,20 @@ def main() -> None:
     parameter_groups = build_parameter_groups(specs["families"], baselines, variant_meta)
     best_by_family = build_best_by_family(parameter_groups)
     overall_best_variant = max(variant_meta, key=metric_sort_key) if variant_meta else None
+
+    if previous_summary:
+        previous_baselines = filter_summary_items_by_families(previous_summary.get("baselines", []), specs["families"])
+        previous_variants = filter_summary_items_by_families(previous_summary.get("variants", []), specs["families"])
+        baseline_meta = merge_by_spec_name(baseline_meta, previous_baselines)
+        variant_meta = merge_by_spec_name(variant_meta, previous_variants)
+        merged_families = merge_family_entries(specs["families"], previous_summary.get("families", []), "family")
+
+        baseline_map = {item["spec"]["name"]: item for item in baseline_meta}
+        parameter_groups = build_parameter_groups(merged_families, baseline_map, variant_meta)
+        best_by_family = build_best_by_family(parameter_groups)
+        specs["families"] = merged_families
+        if variant_meta:
+            overall_best_variant = max(variant_meta, key=metric_sort_key)
 
     summary = {
         "device": str(device),

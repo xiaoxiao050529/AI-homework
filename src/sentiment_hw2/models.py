@@ -370,6 +370,61 @@ class BiLSTMClassifier(nn.Module):
         return self.fc(self.dropout(features))
 
 
+class AdditiveAttention(nn.Module):
+    """对序列输出做带掩码的加性注意力池化。"""
+
+    def __init__(self, input_dim: int, attention_dim: int):
+        super().__init__()
+        self.proj = nn.Linear(input_dim, attention_dim)
+        self.score = nn.Linear(attention_dim, 1, bias=False)
+
+    def forward(self, sequence: torch.Tensor, lengths: torch.Tensor) -> Tuple[torch.Tensor, torch.Tensor]:
+        batch_size, seq_len, _ = sequence.size()
+        positions = torch.arange(seq_len, device=sequence.device).unsqueeze(0).expand(batch_size, seq_len)
+        mask = positions < lengths.clamp(min=1).unsqueeze(1)
+
+        scores = self.score(torch.tanh(self.proj(sequence))).squeeze(-1)
+        scores = scores.masked_fill(~mask, -1e9)
+        weights = torch.softmax(scores, dim=1)
+        context = torch.bmm(weights.unsqueeze(1), sequence).squeeze(1)
+        return context, weights
+
+
+class BiLSTMAttentionClassifier(nn.Module):
+    """在双向 LSTM 输出上做注意力池化的文本分类器。"""
+
+    def __init__(
+        self,
+        embedding_matrix: torch.Tensor,
+        hidden_dim: int = 128,
+        num_layers: int = 1,
+        dropout: float = 0.3,
+        attention_dim: int = 128,
+    ):
+        super().__init__()
+        self.embedding = nn.Embedding.from_pretrained(
+            embedding_matrix, freeze=False, padding_idx=0
+        )
+        embedding_dim = embedding_matrix.size(1)
+        self.lstm = ManualBidirectionalRecurrentEncoder(
+            input_size=embedding_dim,
+            hidden_size=hidden_dim,
+            num_layers=num_layers,
+            dropout=dropout,
+            cell_type="lstm",
+        )
+        self.attention = AdditiveAttention(hidden_dim * 2, attention_dim)
+        self.dropout = nn.Dropout(dropout)
+        self.fc = nn.Linear(hidden_dim * 2, 2)
+
+    def forward(self, inputs: torch.Tensor, lengths: torch.Tensor) -> torch.Tensor:
+        """让模型从整条序列中学习更重要的情感触发词。"""
+        embedded = self.embedding(inputs)
+        sequence_outputs, _ = self.lstm(embedded, lengths)
+        context, _ = self.attention(sequence_outputs, lengths)
+        return self.fc(self.dropout(context))
+
+
 def initialize_model(model: nn.Module) -> None:
     """按层类型选择更合适的初始化策略。"""
     for name, param in model.named_parameters():

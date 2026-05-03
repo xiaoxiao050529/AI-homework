@@ -23,14 +23,24 @@ from .experiment import model_label
 from .report_diagrams import ensure_diagram_assets
 
 
-ACTIVE_FONT_NAME = "STSong-Light"
+GRAPHICS_FONT_CANDIDATES = [
+    ("DroidSansFallback", Path("/usr/share/fonts/google-droid-fonts/DroidSansFallback.ttf")),
+]
+BODY_FONT_NAME = "STSong-Light"
+GRAPHICS_FONT_NAME = "Helvetica"
 
 
 def register_fonts() -> None:
     """注册中文字体，兼顾中文与正文中的英文、数字显示。"""
-    global ACTIVE_FONT_NAME
+    global BODY_FONT_NAME, GRAPHICS_FONT_NAME
     registerFont(UnicodeCIDFont("STSong-Light"))
-    ACTIVE_FONT_NAME = "STSong-Light"
+    BODY_FONT_NAME = "STSong-Light"
+    GRAPHICS_FONT_NAME = "Helvetica"
+    for font_name, font_path in GRAPHICS_FONT_CANDIDATES:
+        if font_path.exists():
+            registerFont(TTFont(font_name, str(font_path)))
+            GRAPHICS_FONT_NAME = font_name
+            break
 
 
 def build_styles():
@@ -40,7 +50,7 @@ def build_styles():
         ParagraphStyle(
             name="TitleCN",
             parent=styles["Title"],
-            fontName=ACTIVE_FONT_NAME,
+            fontName=BODY_FONT_NAME,
             fontSize=20,
             leading=30,
             alignment=TA_CENTER,
@@ -51,7 +61,7 @@ def build_styles():
         ParagraphStyle(
             name="SubTitleCN",
             parent=styles["Title"],
-            fontName=ACTIVE_FONT_NAME,
+            fontName=BODY_FONT_NAME,
             fontSize=14,
             leading=20,
             alignment=TA_CENTER,
@@ -62,7 +72,7 @@ def build_styles():
         ParagraphStyle(
             name="MetaCN",
             parent=styles["BodyText"],
-            fontName=ACTIVE_FONT_NAME,
+            fontName=BODY_FONT_NAME,
             fontSize=11,
             leading=18,
             alignment=TA_CENTER,
@@ -73,7 +83,7 @@ def build_styles():
         ParagraphStyle(
             name="HeadingCN",
             parent=styles["Heading1"],
-            fontName=ACTIVE_FONT_NAME,
+            fontName=BODY_FONT_NAME,
             fontSize=14,
             leading=22,
             spaceBefore=14,
@@ -84,7 +94,7 @@ def build_styles():
         ParagraphStyle(
             name="SubHeadingCN",
             parent=styles["Heading2"],
-            fontName=ACTIVE_FONT_NAME,
+            fontName=BODY_FONT_NAME,
             fontSize=12.5,
             leading=20,
             spaceBefore=10,
@@ -95,7 +105,7 @@ def build_styles():
         ParagraphStyle(
             name="BodyCN",
             parent=styles["BodyText"],
-            fontName=ACTIVE_FONT_NAME,
+            fontName=BODY_FONT_NAME,
             fontSize=12,
             leading=20,
             alignment=TA_JUSTIFY,
@@ -114,7 +124,7 @@ def build_styles():
         ParagraphStyle(
             name="CaptionCN",
             parent=styles["BodyText"],
-            fontName=ACTIVE_FONT_NAME,
+            fontName=BODY_FONT_NAME,
             fontSize=10,
             leading=14,
             alignment=TA_CENTER,
@@ -126,7 +136,7 @@ def build_styles():
         ParagraphStyle(
             name="KeywordCN",
             parent=styles["BodyNoIndentCN"],
-            fontName=ACTIVE_FONT_NAME,
+            fontName=BODY_FONT_NAME,
             fontSize=11,
             leading=18,
         )
@@ -135,7 +145,7 @@ def build_styles():
         ParagraphStyle(
             name="SmallCN",
             parent=styles["BodyText"],
-            fontName=ACTIVE_FONT_NAME,
+            fontName=BODY_FONT_NAME,
             fontSize=9,
             leading=13,
             alignment=TA_JUSTIFY,
@@ -145,7 +155,7 @@ def build_styles():
         ParagraphStyle(
             name="ReferenceCN",
             parent=styles["BodyText"],
-            fontName=ACTIVE_FONT_NAME,
+            fontName=BODY_FONT_NAME,
             fontSize=10.5,
             leading=16,
             spaceAfter=2,
@@ -204,6 +214,7 @@ def add_legend(
     x: float,
     y: float,
     entries: Sequence[tuple],
+    font_name: str = None,
     column_maximum: int = None,
     deltax: float = 54,
     deltay: float = 10,
@@ -216,7 +227,7 @@ def add_legend(
     legend.dy = 8
     legend.deltax = deltax
     legend.deltay = deltay
-    legend.fontName = ACTIVE_FONT_NAME
+    legend.fontName = GRAPHICS_FONT_NAME if font_name is None else font_name
     legend.fontSize = 8
     legend.columnMaximum = len(entries) if column_maximum is None else column_maximum
     legend.colorNamePairs = list(entries)
@@ -233,7 +244,7 @@ def apply_academic_table_style(
     table.setStyle(
         TableStyle(
             [
-                ("FONTNAME", (0, 0), (-1, -1), ACTIVE_FONT_NAME),
+                ("FONTNAME", (0, 0), (-1, -1), BODY_FONT_NAME),
                 ("FONTSIZE", (0, 0), (-1, -1), font_size),
                 ("TEXTCOLOR", (0, 0), (-1, -1), colors.black),
                 ("BACKGROUND", (0, 0), (-1, 0), header_background),
@@ -277,7 +288,7 @@ def parameter_table(results: List[Dict[str, object]]) -> Table:
     """把主模型的结构参数和训练参数合并成一张总表。"""
     small_style = ParagraphStyle(
         name="TableSmallCN",
-        fontName=ACTIVE_FONT_NAME,
+        fontName=BODY_FONT_NAME,
         fontSize=7.5,
         leading=9,
     )
@@ -298,13 +309,18 @@ def parameter_table(results: List[Dict[str, object]]) -> Table:
     return apply_academic_table_style(table, font_size=8.0)
 
 
-def loss_curve_drawing(result: Dict[str, object], width: float = 15.8 * cm, height: float = 6.0 * cm) -> Drawing:
-    """把单个模型的训练损失和验证损失画成曲线。"""
+def validation_metric_curve_drawing(
+    result: Dict[str, object],
+    width: float = 15.8 * cm,
+    height: float = 6.0 * cm,
+) -> Drawing:
+    """把单个模型的验证集 Accuracy 和 F1 画成曲线。"""
     history = result["history"]
-    train_points = [(record["epoch"], record["train_loss"]) for record in history]
-    val_points = [(record["epoch"], record["validation_loss"]) for record in history]
+    accuracy_points = [(record["epoch"], record["validation_accuracy"]) for record in history]
+    f1_points = [(record["epoch"], record["validation_f1"]) for record in history]
     epochs = [record["epoch"] for record in history]
-    y_max = max(max(value for _, value in train_points), max(value for _, value in val_points))
+    y_min = min(min(value for _, value in accuracy_points), min(value for _, value in f1_points))
+    y_max = max(max(value for _, value in accuracy_points), max(value for _, value in f1_points))
 
     drawing = Drawing(width, height + 14)
     chart = LinePlot()
@@ -312,7 +328,7 @@ def loss_curve_drawing(result: Dict[str, object], width: float = 15.8 * cm, heig
     chart.y = 18
     chart.width = width - 74
     chart.height = height - 10
-    chart.data = [train_points, val_points]
+    chart.data = [accuracy_points, f1_points]
     chart.joinedLines = 1
     chart.lines[0].strokeColor = colors.HexColor("#2563EB")
     chart.lines[0].strokeWidth = 1.8
@@ -323,18 +339,19 @@ def loss_curve_drawing(result: Dict[str, object], width: float = 15.8 * cm, heig
     chart.xValueAxis.valueMin = min(epochs)
     chart.xValueAxis.valueMax = max(epochs)
     chart.xValueAxis.valueStep = 1
-    chart.yValueAxis.valueMin = 0
-    chart.yValueAxis.valueMax = y_max * 1.08
-    chart.yValueAxis.valueStep = max(0.05, round(y_max / 5.0, 2))
+    chart.yValueAxis.valueMin = max(0.0, round(y_min - 0.03, 2))
+    chart.yValueAxis.valueMax = min(1.0, round(y_max + 0.02, 2))
+    chart.yValueAxis.valueStep = 0.01
     drawing.add(chart)
     add_legend(
         drawing,
         x=width - 110,
         y=height + 1,
         entries=[
-            (colors.HexColor("#2563EB"), "训练集损失"),
-            (colors.HexColor("#DC2626"), "验证集损失"),
+            (colors.HexColor("#2563EB"), "验证集 Accuracy"),
+            (colors.HexColor("#DC2626"), "验证集 F1"),
         ],
+        font_name=GRAPHICS_FONT_NAME,
         column_maximum=2,
         deltax=44,
         deltay=10,
@@ -381,6 +398,7 @@ def validation_f1_curve_drawing(
         x=width - 102,
         y=height + 1,
         entries=[(CHART_COLORS[idx % len(CHART_COLORS)], model_label(result["model_name"])) for idx, result in enumerate(ordered_results)],
+        font_name="Helvetica",
         column_maximum=5,
         deltax=38,
         deltay=11,
@@ -411,7 +429,7 @@ def grouped_metric_bar_chart(
     chart.groupSpacing = 12
     chart.barSpacing = 3
     chart.categoryAxis.categoryNames = list(category_names)
-    chart.categoryAxis.labels.fontName = ACTIVE_FONT_NAME
+    chart.categoryAxis.labels.fontName = "Helvetica"
     chart.categoryAxis.labels.fontSize = 8
     chart.categoryAxis.labels.dy = -8
     chart.valueAxis.labels.fontName = "Helvetica"
@@ -432,11 +450,12 @@ def grouped_metric_bar_chart(
         x=width - 76,
         y=height - 2,
         entries=[(CHART_COLORS[idx % len(CHART_COLORS)], label) for idx, label in enumerate(legend_labels)],
+        font_name="Helvetica",
         column_maximum=2,
         deltax=36,
         deltay=10,
     )
-    drawing.add(String(42, 4, footnote, fontName=ACTIVE_FONT_NAME, fontSize=7.2))
+    drawing.add(String(42, 4, footnote, fontName=GRAPHICS_FONT_NAME, fontSize=7.2))
     return drawing
 
 
@@ -519,6 +538,11 @@ def external_robustness_table(results: List[Dict[str, object]]) -> Table:
 
 def hyperparameter_tuning_table(variants: List[Dict[str, object]]) -> Table:
     """把逐个超参数调节结果整理成总表。"""
+    def stringify(value):
+        if isinstance(value, list):
+            return "(" + ", ".join(str(item) for item in value) + ")"
+        return str(value)
+
     rows = [["超参数", "代表模型", "调整值", "测试集 Acc", "测试集 F1", "相对基线 ΔF1"]]
     for item in variants:
         spec = item["spec"]
@@ -527,7 +551,7 @@ def hyperparameter_tuning_table(variants: List[Dict[str, object]]) -> Table:
             [
                 spec["parameter_name"],
                 model_label(spec["family"]),
-                spec["parameter_value"],
+                stringify(spec["parameter_value"]),
                 "{:.4f}".format(result["test"]["accuracy"]),
                 "{:.4f}".format(result["test"]["f1"]),
                 "{:+.4f}".format(result["delta_vs_baseline"]["test_f1"]),
@@ -535,6 +559,134 @@ def hyperparameter_tuning_table(variants: List[Dict[str, object]]) -> Table:
         )
     table = Table(rows, colWidths=[2.3 * cm, 2.1 * cm, 2.0 * cm, 2.3 * cm, 2.3 * cm, 2.8 * cm])
     return apply_academic_table_style(table, font_size=8.5)
+
+
+def hyperparameter_family_table(families: Sequence[Dict[str, object]]) -> Table:
+    """汇总每个模型的基线参数与可调超参数。"""
+    small_style = ParagraphStyle(
+        name="HyperparamFamilySmallCN",
+        fontName=BODY_FONT_NAME,
+        fontSize=7.4,
+        leading=9,
+    )
+    rows = [["模型", "基线结构参数", "基线训练参数", "调参覆盖的超参数"]]
+    for family in families:
+        model_cfg = family["baseline_model_config"]
+        train_cfg = family["baseline_train_config"]
+        rows.append(
+            [
+                model_label(family["family"]),
+                Paragraph(
+                    "<br/>".join(
+                        "{}={}".format(
+                            key,
+                            tuple(model_cfg[key]) if isinstance(model_cfg[key], list) else model_cfg[key],
+                        )
+                        for key in sorted(model_cfg.keys())
+                    ),
+                    small_style,
+                ),
+                Paragraph(
+                    "<br/>".join(
+                        "{}={}".format(
+                            key,
+                            tuple(train_cfg[key]) if isinstance(train_cfg[key], list) else train_cfg[key],
+                        )
+                        for key in sorted(train_cfg.keys())
+                    ),
+                    small_style,
+                ),
+                Paragraph("<br/>".join(family["tunable_parameters"]), small_style),
+            ]
+        )
+    table = Table(rows, colWidths=[1.8 * cm, 4.0 * cm, 5.8 * cm, 4.4 * cm])
+    return apply_academic_table_style(table, font_size=7.8)
+
+
+def best_hyperparameter_table(best_by_family: Sequence[Dict[str, object]]) -> Table:
+    """汇总每个模型族里每个超参数的最优值。"""
+    rows = [["模型", "超参数", "基线值", "最优值", "最优 Test F1", "相对基线 ΔF1"]]
+    for family_group in best_by_family:
+        for item in family_group["best_parameters"]:
+            rows.append(
+                [
+                    model_label(family_group["family"]),
+                    item["parameter_name"],
+                    str(item["baseline_value_label"]),
+                    str(item["best_value_label"]),
+                    "{:.4f}".format(item["best_test_f1"]),
+                    "{:+.4f}".format(item["delta_test_f1"]),
+                ]
+            )
+    table = Table(rows, colWidths=[1.8 * cm, 2.5 * cm, 2.3 * cm, 2.3 * cm, 2.4 * cm, 2.8 * cm])
+    return apply_academic_table_style(table, font_size=8.0)
+
+
+def tuning_parameter_chart(
+    parameter_group: Dict[str, object],
+    width: float = 15.8 * cm,
+    height: float = 6.2 * cm,
+) -> Drawing:
+    """为单个超参数画出候选值对应的验证集/测试集 F1。"""
+    candidates = parameter_group["candidates"]
+    category_names = [entry["value_label"] for entry in candidates]
+    validation_values = [entry["result"]["validation"]["f1"] for entry in candidates]
+    test_values = [entry["result"]["test"]["f1"] for entry in candidates]
+    all_values = validation_values + test_values
+    best = parameter_group["best"]
+
+    drawing = Drawing(width, height + 18)
+    chart = VerticalBarChart()
+    chart.x = 42
+    chart.y = 20
+    chart.width = width - 74
+    chart.height = height - 6
+    chart.data = [validation_values, test_values]
+    chart.groupSpacing = 12
+    chart.barSpacing = 3
+    chart.categoryAxis.categoryNames = category_names
+    chart.categoryAxis.labels.fontName = GRAPHICS_FONT_NAME
+    chart.categoryAxis.labels.fontSize = 8
+    chart.categoryAxis.labels.dy = -8
+    chart.valueAxis.labels.fontName = "Helvetica"
+    chart.valueAxis.labels.fontSize = 8
+    chart.valueAxis.valueMin = max(0.0, round(min(all_values) - 0.03, 2))
+    chart.valueAxis.valueMax = min(1.0, round(max(all_values) + 0.03, 2))
+    chart.valueAxis.valueStep = 0.02
+    chart.barLabelFormat = "%.3f"
+    chart.barLabels.fontName = "Helvetica"
+    chart.barLabels.fontSize = 6
+    chart.barLabels.nudge = 6
+    chart.barLabels.fillColor = colors.HexColor("#334155")
+    chart.bars[0].fillColor = colors.HexColor("#2563EB")
+    chart.bars[1].fillColor = colors.HexColor("#DC2626")
+    drawing.add(chart)
+    add_legend(
+        drawing,
+        x=width - 94,
+        y=height - 2,
+        entries=[
+            (colors.HexColor("#2563EB"), "Validation F1"),
+            (colors.HexColor("#DC2626"), "Test F1"),
+        ],
+        column_maximum=2,
+        deltax=44,
+        deltay=10,
+    )
+    drawing.add(
+        String(
+            42,
+            4,
+            "基线值={}；最优值={}；最优 Test F1={:.4f}".format(
+                parameter_group["baseline_value_label"],
+                best["value_label"],
+                best["test_f1"],
+            ),
+            fontName=GRAPHICS_FONT_NAME,
+            fontSize=7.2,
+        )
+    )
+    return drawing
 
 
 def ablation_table(ablations: List[Dict[str, object]]) -> Table:
@@ -560,16 +712,16 @@ def build_curve_section(results: List[Dict[str, object]], styles) -> List:
     ordered_results = ordered_main_results(results)
     blocks: List = [
         paragraph(
-            "为展示不同结构在训练阶段的收敛特征，图4至图9给出了各模型训练损失与验证集 F1 的变化过程。整体上，多数模型都在前几轮快速下降，随后逐步进入平台期，这与验证集早停策略的触发时机基本一致。",
+            "为展示不同结构在训练阶段的指标变化特征，图4至图9给出了各模型验证集 Accuracy 和 F1 随训练轮次的变化过程。由于课程评价重点是 Accuracy 与 F1，因此这里直接围绕验证指标作图，更便于判断模型何时达到最佳泛化效果。",
             styles,
         )
     ]
     for result in ordered_results:
-        blocks.append(loss_curve_drawing(result))
+        blocks.append(validation_metric_curve_drawing(result))
         blocks.append(Spacer(1, 0.06 * cm))
         blocks.append(
             paragraph(
-                "图{}  {}训练集与验证集损失曲线".format(
+                "图{}  {}验证集 Accuracy 与 F1 变化曲线".format(
                     figure_numbers[result["model_name"]],
                     model_label(result["model_name"]),
                 ),
@@ -585,19 +737,46 @@ def build_curve_section(results: List[Dict[str, object]], styles) -> List:
     return blocks
 
 
+def build_tuning_chart_section(parameter_groups: Sequence[Dict[str, object]], styles) -> List:
+    """生成逐个超参数的图表章节。"""
+    blocks: List = [
+        paragraph(
+            "下面的图表严格采用控制变量法：每次只改变一个超参数，其余结构参数与训练参数保持对应模型基线不变。横轴为候选取值，纵轴为验证集与测试集 F1，便于直接比较不同取值下的效果差异。",
+            styles,
+        )
+    ]
+    current_family = None
+    for group in parameter_groups:
+        if group["family"] != current_family:
+            current_family = group["family"]
+            blocks.append(paragraph(model_label(current_family), styles, "SubHeadingCN"))
+        blocks.append(tuning_parameter_chart(group))
+        blocks.append(Spacer(1, 0.06 * cm))
+        blocks.append(
+            paragraph(
+                "{}  {} 单变量调参结果".format(model_label(group["family"]), group["parameter_name"]),
+                styles,
+                "CaptionCN",
+            )
+        )
+        blocks.append(Spacer(1, 0.14 * cm))
+    return blocks
+
+
 def export_report_charts(
     asset_dir: Path,
     results: Sequence[Dict[str, object]],
     external_results: Sequence[Dict[str, object]] = None,
+    tuning_parameter_groups: Sequence[Dict[str, object]] = None,
 ) -> Dict[str, Path]:
     """把程序直接生成的图表额外导出成独立 PNG 文件。"""
     asset_dir.mkdir(parents=True, exist_ok=True)
     exported: Dict[str, Path] = {}
 
     for result in ordered_main_results(results):
-        path = asset_dir / "{}_loss_curve.png".format(result["model_name"])
-        renderPM.drawToFile(loss_curve_drawing(result), str(path), fmt="PNG")
-        exported["{}_loss_curve".format(result["model_name"])] = path
+        path = asset_dir / "{}_validation_metric_curve.png".format(result["model_name"])
+        renderPM.drawToFile(validation_metric_curve_drawing(result), str(path), fmt="PNG")
+        exported["{}_validation_metric_curve".format(result["model_name"])] = path
 
     validation_path = asset_dir / "validation_f1_curve.png"
     renderPM.drawToFile(validation_f1_curve_drawing(results), str(validation_path), fmt="PNG")
@@ -611,6 +790,14 @@ def export_report_charts(
         external_path = asset_dir / "external_robustness_chart.png"
         renderPM.drawToFile(external_robustness_chart(external_results), str(external_path), fmt="PNG")
         exported["external_robustness_chart"] = external_path
+
+    if tuning_parameter_groups:
+        tuning_dir = asset_dir / "tuning"
+        tuning_dir.mkdir(parents=True, exist_ok=True)
+        for group in tuning_parameter_groups:
+            path = tuning_dir / "{}_{}.png".format(group["family"], group["parameter_name"])
+            renderPM.drawToFile(tuning_parameter_chart(group), str(path), fmt="PNG")
+            exported["{}_{}".format(group["family"], group["parameter_name"])] = path
 
     return exported
 
