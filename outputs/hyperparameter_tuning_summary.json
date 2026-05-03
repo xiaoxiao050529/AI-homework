@@ -1,0 +1,1706 @@
+{
+  "device": "cpu",
+  "data": {
+    "max_len": 80,
+    "embedding_dim": 50,
+    "train_size": 19998,
+    "validation_size": 5629,
+    "test_size": 369,
+    "train_token_coverage": 0.9717837113076685,
+    "vocab_coverage": 0.8300241858372237,
+    "oov_ratio": 0.16999137575462148,
+    "vocab_size": 53339
+  },
+  "methodology": "Single-variable tuning. Each experiment changes exactly one hyperparameter while holding the corresponding family baseline fixed, so differences can be attributed to that parameter as directly as possible.",
+  "baselines": [
+    {
+      "spec": {
+        "name": "tune_mlp_base",
+        "family": "mlp",
+        "parameter_name": "baseline",
+        "parameter_value": "default",
+        "baseline_name": "tune_mlp_base",
+        "description": "MLP 基线配置",
+        "train_config": {
+          "batch_size": 128,
+          "epochs": 10,
+          "learning_rate": 0.001,
+          "weight_decay": 0.0001,
+          "patience": 3,
+          "grad_clip": 0.0,
+          "seed": 42,
+          "embedding_learning_rate": null,
+          "label_smoothing": 0.0,
+          "warmup_epochs": 0,
+          "min_epochs": 1,
+          "freeze_embedding_epochs": 0,
+          "scheduler": "plateau",
+          "min_learning_rate_scale": 0.2
+        }
+      },
+      "result": {
+        "model_name": "tune_mlp_base",
+        "best_epoch": 7,
+        "parameter_count": 2673736,
+        "train_seconds": 96.70881748199463,
+        "validation": {
+          "accuracy": 0.8466868004974241,
+          "precision": 0.8401396160558464,
+          "recall": 0.8559743954480796,
+          "f1": 0.8479830896600318,
+          "tp": 2407,
+          "tn": 2359,
+          "fp": 458,
+          "fn": 405,
+          "loss": 0.3612453594081121
+        },
+        "test": {
+          "accuracy": 0.8644986449864499,
+          "precision": 0.8914285714285715,
+          "recall": 0.8342245989304813,
+          "f1": 0.861878453038674,
+          "tp": 156,
+          "tn": 163,
+          "fp": 19,
+          "fn": 31,
+          "loss": 0.3124232632600195
+        },
+        "history": [
+          {
+            "epoch": 1,
+            "train_loss": 0.6037803523653041,
+            "validation_loss": 0.47991418823676585,
+            "validation_accuracy": 0.7811334162373423,
+            "validation_f1": 0.7928715534633489,
+            "lr": 0.001
+          },
+          {
+            "epoch": 2,
+            "train_loss": 0.4728436849691687,
+            "validation_loss": 0.4107383789008539,
+            "validation_accuracy": 0.8141765855391722,
+            "validation_f1": 0.8139452152258982,
+            "lr": 0.001
+          },
+          {
+            "epoch": 3,
+            "train_loss": 0.4091794720106404,
+            "validation_loss": 0.38072347929537415,
+            "validation_accuracy": 0.8301652158465092,
+            "validation_f1": 0.8284894151417294,
+            "lr": 0.001
+          },
+          {
+            "epoch": 4,
+            "train_loss": 0.35513536203609775,
+            "validation_loss": 0.3618649626989563,
+            "validation_accuracy": 0.8383371824480369,
+            "validation_f1": 0.8373838456040027,
+            "lr": 0.001
+          },
+          {
+            "epoch": 5,
+            "train_loss": 0.31297810381800545,
+            "validation_loss": 0.35500114670674865,
+            "validation_accuracy": 0.8429561200923787,
+            "validation_f1": 0.8436505129112133,
+            "lr": 0.001
+          },
+          {
+            "epoch": 6,
+            "train_loss": 0.27709555150819,
+            "validation_loss": 0.3527936793428307,
+            "validation_accuracy": 0.8468644519452834,
+            "validation_f1": 0.8470003549875754,
+            "lr": 0.001
+          },
+          {
+            "epoch": 7,
+            "train_loss": 0.23877526732078372,
+            "validation_loss": 0.3612453594081121,
+            "validation_accuracy": 0.8466868004974241,
+            "validation_f1": 0.8479830896600318,
+            "lr": 0.001
+          },
+          {
+            "epoch": 8,
+            "train_loss": 0.20948853529933834,
+            "validation_loss": 0.3710533577302227,
+            "validation_accuracy": 0.844910286018831,
+            "validation_f1": 0.8429573664328117,
+            "lr": 0.001
+          },
+          {
+            "epoch": 9,
+            "train_loss": 0.1828359311023871,
+            "validation_loss": 0.3896129870313081,
+            "validation_accuracy": 0.84011369692663,
+            "validation_f1": 0.8378962536023055,
+            "lr": 0.0005
+          },
+          {
+            "epoch": 10,
+            "train_loss": 0.15030247298213575,
+            "validation_loss": 0.402483822530022,
+            "validation_accuracy": 0.8392254396873334,
+            "validation_f1": 0.8387096774193548,
+            "lr": 0.0005
+          }
+        ],
+        "checkpoint": "/home/bingxing2/home/scx9kyg/research/AI-homework/outputs/tuning/tune_mlp_base_best.pt"
+      }
+    },
+    {
+      "spec": {
+        "name": "tune_cnn_base",
+        "family": "cnn",
+        "parameter_name": "baseline",
+        "parameter_value": "default",
+        "baseline_name": "tune_cnn_base",
+        "description": "TextCNN 基线配置",
+        "train_config": {
+          "batch_size": 128,
+          "epochs": 10,
+          "learning_rate": 0.001,
+          "weight_decay": 0.0001,
+          "patience": 3,
+          "grad_clip": 0.0,
+          "seed": 42,
+          "embedding_learning_rate": null,
+          "label_smoothing": 0.0,
+          "warmup_epochs": 0,
+          "min_epochs": 1,
+          "freeze_embedding_epochs": 0,
+          "scheduler": "plateau",
+          "min_learning_rate_scale": 0.2
+        }
+      },
+      "result": {
+        "model_name": "tune_cnn_base",
+        "best_epoch": 6,
+        "parameter_count": 2744904,
+        "train_seconds": 196.84343028068542,
+        "validation": {
+          "accuracy": 0.8410019541659265,
+          "precision": 0.8546059933407325,
+          "recall": 0.8214793741109531,
+          "f1": 0.8377153218495014,
+          "tp": 2310,
+          "tn": 2424,
+          "fp": 393,
+          "fn": 502,
+          "loss": 0.40204690139741367
+        },
+        "test": {
+          "accuracy": 0.8563685636856369,
+          "precision": 0.9085365853658537,
+          "recall": 0.7967914438502673,
+          "f1": 0.849002849002849,
+          "tp": 149,
+          "tn": 167,
+          "fp": 15,
+          "fn": 38,
+          "loss": 0.31389853180585514
+        },
+        "history": [
+          {
+            "epoch": 1,
+            "train_loss": 0.7165192531304236,
+            "validation_loss": 0.47796133882221353,
+            "validation_accuracy": 0.7692307692307693,
+            "validation_f1": 0.7778347870702925,
+            "lr": 0.001,
+            "embedding_lr": 0.001,
+            "embedding_trainable": true
+          },
+          {
+            "epoch": 2,
+            "train_loss": 0.4603439225728708,
+            "validation_loss": 0.4338672285256578,
+            "validation_accuracy": 0.7980103037839759,
+            "validation_f1": 0.7936853565596079,
+            "lr": 0.001,
+            "embedding_lr": 0.001,
+            "embedding_trainable": true
+          },
+          {
+            "epoch": 3,
+            "train_loss": 0.36146111201138387,
+            "validation_loss": 0.4051567322355664,
+            "validation_accuracy": 0.8141765855391722,
+            "validation_f1": 0.8130807719799857,
+            "lr": 0.001,
+            "embedding_lr": 0.001,
+            "embedding_trainable": true
+          },
+          {
+            "epoch": 4,
+            "train_loss": 0.2863659573735112,
+            "validation_loss": 0.39593627200729786,
+            "validation_accuracy": 0.8232368093799964,
+            "validation_f1": 0.8163189957541074,
+            "lr": 0.001,
+            "embedding_lr": 0.001,
+            "embedding_trainable": true
+          },
+          {
+            "epoch": 5,
+            "train_loss": 0.2154848714857319,
+            "validation_loss": 0.41039586651174864,
+            "validation_accuracy": 0.8232368093799964,
+            "validation_f1": 0.8105844279459357,
+            "lr": 0.001,
+            "embedding_lr": 0.001,
+            "embedding_trainable": true
+          },
+          {
+            "epoch": 6,
+            "train_loss": 0.16113365142688071,
+            "validation_loss": 0.40204690139741367,
+            "validation_accuracy": 0.8410019541659265,
+            "validation_f1": 0.8377153218495014,
+            "lr": 0.001,
+            "embedding_lr": 0.001,
+            "embedding_trainable": true
+          },
+          {
+            "epoch": 7,
+            "train_loss": 0.11428191136829209,
+            "validation_loss": 0.4254474704908126,
+            "validation_accuracy": 0.8374489252087405,
+            "validation_f1": 0.8322024573629195,
+            "lr": 0.001,
+            "embedding_lr": 0.001,
+            "embedding_trainable": true
+          },
+          {
+            "epoch": 8,
+            "train_loss": 0.07822268888881856,
+            "validation_loss": 0.45394285220959235,
+            "validation_accuracy": 0.8379818795523184,
+            "validation_f1": 0.8335158817086528,
+            "lr": 0.0005,
+            "embedding_lr": 0.0005,
+            "embedding_trainable": true
+          },
+          {
+            "epoch": 9,
+            "train_loss": 0.05121619400014766,
+            "validation_loss": 0.4723036483520512,
+            "validation_accuracy": 0.8372712737608812,
+            "validation_f1": 0.8335755813953488,
+            "lr": 0.0005,
+            "embedding_lr": 0.0005,
+            "embedding_trainable": true
+          }
+        ],
+        "checkpoint": "/home/bingxing2/home/scx9kyg/research/AI-homework/outputs/tuning/tune_cnn_base_best.pt"
+      }
+    },
+    {
+      "spec": {
+        "name": "tune_bigru_base",
+        "family": "bigru",
+        "parameter_name": "baseline",
+        "parameter_value": "default",
+        "baseline_name": "tune_bigru_base",
+        "description": "BiGRU 基线配置",
+        "train_config": {
+          "batch_size": 64,
+          "epochs": 12,
+          "learning_rate": 0.0008,
+          "weight_decay": 0.0001,
+          "patience": 3,
+          "grad_clip": 5.0,
+          "seed": 42,
+          "embedding_learning_rate": null,
+          "label_smoothing": 0.0,
+          "warmup_epochs": 0,
+          "min_epochs": 1,
+          "freeze_embedding_epochs": 0,
+          "scheduler": "plateau",
+          "min_learning_rate_scale": 0.2
+        }
+      },
+      "result": {
+        "model_name": "tune_bigru_base",
+        "best_epoch": 2,
+        "parameter_count": 2805704,
+        "train_seconds": 722.7882862091064,
+        "validation": {
+          "accuracy": 0.8516610410374844,
+          "precision": 0.8531618435155413,
+          "recall": 0.8492176386913229,
+          "f1": 0.8511851719836037,
+          "tp": 2388,
+          "tn": 2406,
+          "fp": 411,
+          "fn": 424,
+          "loss": 0.3933638507137292
+        },
+        "test": {
+          "accuracy": 0.8617886178861789,
+          "precision": 0.8863636363636364,
+          "recall": 0.8342245989304813,
+          "f1": 0.859504132231405,
+          "tp": 156,
+          "tn": 162,
+          "fp": 20,
+          "fn": 31,
+          "loss": 0.29760756066982663
+        },
+        "history": [
+          {
+            "epoch": 1,
+            "train_loss": 0.3174023129353703,
+            "validation_loss": 0.36776290100936804,
+            "validation_accuracy": 0.8509504352460473,
+            "validation_f1": 0.8506851752980957,
+            "lr": 0.0008,
+            "embedding_lr": 0.0008,
+            "embedding_trainable": true
+          },
+          {
+            "epoch": 2,
+            "train_loss": 0.1979703865882003,
+            "validation_loss": 0.3933638507137292,
+            "validation_accuracy": 0.8516610410374844,
+            "validation_f1": 0.8511851719836037,
+            "lr": 0.0008,
+            "embedding_lr": 0.0008,
+            "embedding_trainable": true
+          },
+          {
+            "epoch": 3,
+            "train_loss": 0.12862596502362733,
+            "validation_loss": 0.4668260323130909,
+            "validation_accuracy": 0.8363830165215846,
+            "validation_f1": 0.8398539384454878,
+            "lr": 0.0008,
+            "embedding_lr": 0.0008,
+            "embedding_trainable": true
+          },
+          {
+            "epoch": 4,
+            "train_loss": 0.07094198957358328,
+            "validation_loss": 0.6165866132400074,
+            "validation_accuracy": 0.8260792325457452,
+            "validation_f1": 0.8307692307692308,
+            "lr": 0.0004,
+            "embedding_lr": 0.0004,
+            "embedding_trainable": true
+          },
+          {
+            "epoch": 5,
+            "train_loss": 0.02692273164288898,
+            "validation_loss": 0.8578491101766441,
+            "validation_accuracy": 0.8223485521406999,
+            "validation_f1": 0.8154300479881875,
+            "lr": 0.0004,
+            "embedding_lr": 0.0004,
+            "embedding_trainable": true
+          }
+        ],
+        "checkpoint": "/home/bingxing2/home/scx9kyg/research/AI-homework/outputs/tuning/tune_bigru_base_best.pt"
+      }
+    }
+  ],
+  "variants": [
+    {
+      "spec": {
+        "name": "tune_mlp_hidden_dim_256",
+        "family": "mlp",
+        "parameter_name": "hidden_dim",
+        "parameter_value": "256",
+        "baseline_name": "tune_mlp_base",
+        "description": "增大 MLP 隐层维度，观察容量增加后的效果变化",
+        "train_config": {
+          "batch_size": 128,
+          "epochs": 10,
+          "learning_rate": 0.001,
+          "weight_decay": 0.0001,
+          "patience": 3,
+          "grad_clip": 0.0,
+          "seed": 42,
+          "embedding_learning_rate": null,
+          "label_smoothing": 0.0,
+          "warmup_epochs": 0,
+          "min_epochs": 1,
+          "freeze_embedding_epochs": 0,
+          "scheduler": "plateau",
+          "min_learning_rate_scale": 0.2
+        }
+      },
+      "result": {
+        "model_name": "tune_mlp_hidden_dim_256",
+        "best_epoch": 4,
+        "parameter_count": 2680520,
+        "train_seconds": 18.687537670135498,
+        "validation": {
+          "accuracy": 0.8505951323503287,
+          "precision": 0.8587550054605023,
+          "recall": 0.8389046941678521,
+          "f1": 0.8487137974455837,
+          "tp": 2359,
+          "tn": 2429,
+          "fp": 388,
+          "fn": 453,
+          "loss": 0.3671013115830607
+        },
+        "test": {
+          "accuracy": 0.8699186991869918,
+          "precision": 0.9112426035502958,
+          "recall": 0.8235294117647058,
+          "f1": 0.8651685393258427,
+          "tp": 154,
+          "tn": 167,
+          "fp": 15,
+          "fn": 33,
+          "loss": 0.30992066084854003
+        },
+        "history": [
+          {
+            "epoch": 1,
+            "train_loss": 0.437426499188608,
+            "validation_loss": 0.36011248461135775,
+            "validation_accuracy": 0.8424231657488008,
+            "validation_f1": 0.8442493415276558,
+            "lr": 0.001,
+            "embedding_lr": 0.001,
+            "embedding_trainable": true
+          },
+          {
+            "epoch": 2,
+            "train_loss": 0.2918463070364711,
+            "validation_loss": 0.35129898958613637,
+            "validation_accuracy": 0.8479303606324392,
+            "validation_f1": 0.8475783475783476,
+            "lr": 0.001,
+            "embedding_lr": 0.001,
+            "embedding_trainable": true
+          },
+          {
+            "epoch": 3,
+            "train_loss": 0.25401475033362825,
+            "validation_loss": 0.3576535601814129,
+            "validation_accuracy": 0.8482856635281577,
+            "validation_f1": 0.8431876606683805,
+            "lr": 0.001,
+            "embedding_lr": 0.001,
+            "embedding_trainable": true
+          },
+          {
+            "epoch": 4,
+            "train_loss": 0.21739048804595645,
+            "validation_loss": 0.3671013115830607,
+            "validation_accuracy": 0.8505951323503287,
+            "validation_f1": 0.8487137974455837,
+            "lr": 0.001,
+            "embedding_lr": 0.001,
+            "embedding_trainable": true
+          },
+          {
+            "epoch": 5,
+            "train_loss": 0.19203726122520343,
+            "validation_loss": 0.3867702233386857,
+            "validation_accuracy": 0.8489962693195949,
+            "validation_f1": 0.8440366972477065,
+            "lr": 0.001,
+            "embedding_lr": 0.001,
+            "embedding_trainable": true
+          },
+          {
+            "epoch": 6,
+            "train_loss": 0.17103069627990794,
+            "validation_loss": 0.4000111448286185,
+            "validation_accuracy": 0.8466868004974241,
+            "validation_f1": 0.8410974037930399,
+            "lr": 0.0005,
+            "embedding_lr": 0.0005,
+            "embedding_trainable": true
+          },
+          {
+            "epoch": 7,
+            "train_loss": 0.1512399347695914,
+            "validation_loss": 0.4094160837037755,
+            "validation_accuracy": 0.8452655889145496,
+            "validation_f1": 0.8422387248686832,
+            "lr": 0.0005,
+            "embedding_lr": 0.0005,
+            "embedding_trainable": true
+          }
+        ],
+        "checkpoint": "/home/bingxing2/home/scx9kyg/research/AI-homework/outputs/tuning/tune_mlp_hidden_dim_256_best.pt",
+        "delta_vs_baseline": {
+          "validation_accuracy": 0.003908331852904623,
+          "validation_f1": 0.0007307077855519539,
+          "test_accuracy": 0.005420054200541924,
+          "test_f1": 0.0032900862871686476
+        }
+      }
+    },
+    {
+      "spec": {
+        "name": "tune_mlp_dropout_0p5",
+        "family": "mlp",
+        "parameter_name": "dropout",
+        "parameter_value": "0.5",
+        "baseline_name": "tune_mlp_base",
+        "description": "提高 MLP dropout，观察更强正则化的影响",
+        "train_config": {
+          "batch_size": 128,
+          "epochs": 10,
+          "learning_rate": 0.001,
+          "weight_decay": 0.0001,
+          "patience": 3,
+          "grad_clip": 0.0,
+          "seed": 42,
+          "embedding_learning_rate": null,
+          "label_smoothing": 0.0,
+          "warmup_epochs": 0,
+          "min_epochs": 1,
+          "freeze_embedding_epochs": 0,
+          "scheduler": "plateau",
+          "min_learning_rate_scale": 0.2
+        }
+      },
+      "result": {
+        "model_name": "tune_mlp_dropout_0p5",
+        "best_epoch": 3,
+        "parameter_count": 2673736,
+        "train_seconds": 15.451277256011963,
+        "validation": {
+          "accuracy": 0.8532599040682182,
+          "precision": 0.8590021691973969,
+          "recall": 0.844950213371266,
+          "f1": 0.8519182502689137,
+          "tp": 2376,
+          "tn": 2427,
+          "fp": 390,
+          "fn": 436,
+          "loss": 0.35687415643554954
+        },
+        "test": {
+          "accuracy": 0.8699186991869918,
+          "precision": 0.9161676646706587,
+          "recall": 0.8181818181818182,
+          "f1": 0.8644067796610169,
+          "tp": 153,
+          "tn": 168,
+          "fp": 14,
+          "fn": 34,
+          "loss": 0.3052579252942791
+        },
+        "history": [
+          {
+            "epoch": 1,
+            "train_loss": 0.4313188034101109,
+            "validation_loss": 0.3433583847507318,
+            "validation_accuracy": 0.8518386924853437,
+            "validation_f1": 0.8512308241170176,
+            "lr": 0.001,
+            "embedding_lr": 0.001,
+            "embedding_trainable": true
+          },
+          {
+            "epoch": 2,
+            "train_loss": 0.26589751685305896,
+            "validation_loss": 0.35216330209683094,
+            "validation_accuracy": 0.8514833895896251,
+            "validation_f1": 0.8505007153075824,
+            "lr": 0.001,
+            "embedding_lr": 0.001,
+            "embedding_trainable": true
+          },
+          {
+            "epoch": 3,
+            "train_loss": 0.23533363649548025,
+            "validation_loss": 0.35687415643554954,
+            "validation_accuracy": 0.8532599040682182,
+            "validation_f1": 0.8519182502689137,
+            "lr": 0.001,
+            "embedding_lr": 0.001,
+            "embedding_trainable": true
+          },
+          {
+            "epoch": 4,
+            "train_loss": 0.20981191913417988,
+            "validation_loss": 0.36693266045244577,
+            "validation_accuracy": 0.852016343933203,
+            "validation_f1": 0.8497745716862039,
+            "lr": 0.001,
+            "embedding_lr": 0.001,
+            "embedding_trainable": true
+          },
+          {
+            "epoch": 5,
+            "train_loss": 0.19003884375828578,
+            "validation_loss": 0.3777385873372272,
+            "validation_accuracy": 0.8527269497246402,
+            "validation_f1": 0.8510867612717801,
+            "lr": 0.0005,
+            "embedding_lr": 0.0005,
+            "embedding_trainable": true
+          },
+          {
+            "epoch": 6,
+            "train_loss": 0.17380488465483016,
+            "validation_loss": 0.3876840911182211,
+            "validation_accuracy": 0.8513057381417659,
+            "validation_f1": 0.848397029523637,
+            "lr": 0.0005,
+            "embedding_lr": 0.0005,
+            "embedding_trainable": true
+          }
+        ],
+        "checkpoint": "/home/bingxing2/home/scx9kyg/research/AI-homework/outputs/tuning/tune_mlp_dropout_0p5_best.pt",
+        "delta_vs_baseline": {
+          "validation_accuracy": 0.006573103570794103,
+          "validation_f1": 0.0039351606088818825,
+          "test_accuracy": 0.005420054200541924,
+          "test_f1": 0.0025283266223428136
+        }
+      }
+    },
+    {
+      "spec": {
+        "name": "tune_cnn_num_filters_64",
+        "family": "cnn",
+        "parameter_name": "num_filters",
+        "parameter_value": "64",
+        "baseline_name": "tune_cnn_base",
+        "description": "减小卷积通道数，观察 CNN 容量下降后的影响",
+        "train_config": {
+          "batch_size": 128,
+          "epochs": 10,
+          "learning_rate": 0.001,
+          "weight_decay": 0.0001,
+          "patience": 3,
+          "grad_clip": 0.0,
+          "seed": 42,
+          "embedding_learning_rate": null,
+          "label_smoothing": 0.0,
+          "warmup_epochs": 0,
+          "min_epochs": 1,
+          "freeze_embedding_epochs": 0,
+          "scheduler": "plateau",
+          "min_learning_rate_scale": 0.2
+        }
+      },
+      "result": {
+        "model_name": "tune_cnn_num_filters_64",
+        "best_epoch": 1,
+        "parameter_count": 2705928,
+        "train_seconds": 54.74722695350647,
+        "validation": {
+          "accuracy": 0.8523716468289216,
+          "precision": 0.8450017415534657,
+          "recall": 0.8627311522048364,
+          "f1": 0.8537744149216964,
+          "tp": 2426,
+          "tn": 2372,
+          "fp": 445,
+          "fn": 386,
+          "loss": 0.3824560846501376
+        },
+        "test": {
+          "accuracy": 0.8455284552845529,
+          "precision": 0.8693181818181818,
+          "recall": 0.8181818181818182,
+          "f1": 0.8429752066115702,
+          "tp": 153,
+          "tn": 159,
+          "fp": 23,
+          "fn": 34,
+          "loss": 0.34497823766091973
+        },
+        "history": [
+          {
+            "epoch": 1,
+            "train_loss": 0.33424517288409133,
+            "validation_loss": 0.3824560846501376,
+            "validation_accuracy": 0.8523716468289216,
+            "validation_f1": 0.8537744149216964,
+            "lr": 0.001,
+            "embedding_lr": 0.001,
+            "embedding_trainable": true
+          },
+          {
+            "epoch": 2,
+            "train_loss": 0.1430139557989088,
+            "validation_loss": 0.4028021275764207,
+            "validation_accuracy": 0.8527269497246402,
+            "validation_f1": 0.8517790094761309,
+            "lr": 0.001,
+            "embedding_lr": 0.001,
+            "embedding_trainable": true
+          },
+          {
+            "epoch": 3,
+            "train_loss": 0.1002773240119955,
+            "validation_loss": 0.43281295245421,
+            "validation_accuracy": 0.8500621780067508,
+            "validation_f1": 0.8498220640569395,
+            "lr": 0.0005,
+            "embedding_lr": 0.0005,
+            "embedding_trainable": true
+          },
+          {
+            "epoch": 4,
+            "train_loss": 0.06956040227648043,
+            "validation_loss": 0.45843955370413725,
+            "validation_accuracy": 0.8477527091845799,
+            "validation_f1": 0.8462228602189127,
+            "lr": 0.0005,
+            "embedding_lr": 0.0005,
+            "embedding_trainable": true
+          }
+        ],
+        "checkpoint": "/home/bingxing2/home/scx9kyg/research/AI-homework/outputs/tuning/tune_cnn_num_filters_64_best.pt",
+        "delta_vs_baseline": {
+          "validation_accuracy": 0.011369692662995146,
+          "validation_f1": 0.016059093072194996,
+          "test_accuracy": -0.010840108401083959,
+          "test_f1": -0.006027642391278731
+        }
+      }
+    },
+    {
+      "spec": {
+        "name": "tune_cnn_filter_sizes_2_3_4",
+        "family": "cnn",
+        "parameter_name": "filter_sizes",
+        "parameter_value": "(2,4)",
+        "baseline_name": "tune_cnn_base",
+        "description": "缩小卷积感受野，观察更短 n-gram 模式的提取效果",
+        "train_config": {
+          "batch_size": 128,
+          "epochs": 10,
+          "learning_rate": 0.001,
+          "weight_decay": 0.0001,
+          "patience": 3,
+          "grad_clip": 0.0,
+          "seed": 42,
+          "embedding_learning_rate": null,
+          "label_smoothing": 0.0,
+          "warmup_epochs": 0,
+          "min_epochs": 1,
+          "freeze_embedding_epochs": 0,
+          "scheduler": "plateau",
+          "min_learning_rate_scale": 0.2
+        }
+      },
+      "result": {
+        "model_name": "tune_cnn_filter_sizes_2_3_4",
+        "best_epoch": 1,
+        "parameter_count": 2706120,
+        "train_seconds": 44.558496952056885,
+        "validation": {
+          "accuracy": 0.8514833895896251,
+          "precision": 0.8409247757073844,
+          "recall": 0.866642958748222,
+          "f1": 0.8535901926444834,
+          "tp": 2437,
+          "tn": 2356,
+          "fp": 461,
+          "fn": 375,
+          "loss": 0.39696301052108246
+        },
+        "test": {
+          "accuracy": 0.8617886178861789,
+          "precision": 0.8820224719101124,
+          "recall": 0.839572192513369,
+          "f1": 0.8602739726027397,
+          "tp": 157,
+          "tn": 161,
+          "fp": 21,
+          "fn": 30,
+          "loss": 0.33170645358924294
+        },
+        "history": [
+          {
+            "epoch": 1,
+            "train_loss": 0.3585940235384656,
+            "validation_loss": 0.39696301052108246,
+            "validation_accuracy": 0.8514833895896251,
+            "validation_f1": 0.8535901926444834,
+            "lr": 0.001,
+            "embedding_lr": 0.001,
+            "embedding_trainable": true
+          },
+          {
+            "epoch": 2,
+            "train_loss": 0.1531781934351489,
+            "validation_loss": 0.4182869333169625,
+            "validation_accuracy": 0.8482856635281577,
+            "validation_f1": 0.8475,
+            "lr": 0.001,
+            "embedding_lr": 0.001,
+            "embedding_trainable": true
+          },
+          {
+            "epoch": 3,
+            "train_loss": 0.10220150337672339,
+            "validation_loss": 0.4553381416646853,
+            "validation_accuracy": 0.8454432403624089,
+            "validation_f1": 0.8415300546448088,
+            "lr": 0.0005,
+            "embedding_lr": 0.0005,
+            "embedding_trainable": true
+          },
+          {
+            "epoch": 4,
+            "train_loss": 0.07253922874571615,
+            "validation_loss": 0.4716708132324432,
+            "validation_accuracy": 0.843666725883816,
+            "validation_f1": 0.8405797101449275,
+            "lr": 0.0005,
+            "embedding_lr": 0.0005,
+            "embedding_trainable": true
+          }
+        ],
+        "checkpoint": "/home/bingxing2/home/scx9kyg/research/AI-homework/outputs/tuning/tune_cnn_filter_sizes_2_3_4_best.pt",
+        "delta_vs_baseline": {
+          "validation_accuracy": 0.010481435423698615,
+          "validation_f1": 0.015874870794982066,
+          "test_accuracy": 0.005420054200542035,
+          "test_f1": 0.011271123599890798
+        }
+      }
+    },
+    {
+      "spec": {
+        "name": "tune_bigru_num_layers_2",
+        "family": "bigru",
+        "parameter_name": "num_layers",
+        "parameter_value": "2",
+        "baseline_name": "tune_bigru_base",
+        "description": "增加 BiGRU 层数，观察更深时序建模是否带来收益",
+        "train_config": {
+          "batch_size": 64,
+          "epochs": 12,
+          "learning_rate": 0.0008,
+          "weight_decay": 0.0001,
+          "patience": 3,
+          "grad_clip": 5.0,
+          "seed": 42,
+          "embedding_learning_rate": null,
+          "label_smoothing": 0.0,
+          "warmup_epochs": 0,
+          "min_epochs": 1,
+          "freeze_embedding_epochs": 0,
+          "scheduler": "plateau",
+          "min_learning_rate_scale": 0.2
+        }
+      },
+      "result": {
+        "model_name": "tune_bigru_num_layers_2",
+        "best_epoch": 2,
+        "parameter_count": 3102152,
+        "train_seconds": 1476.3250613212585,
+        "validation": {
+          "accuracy": 0.8434890744359567,
+          "precision": 0.8456856426781239,
+          "recall": 0.8399715504978663,
+          "f1": 0.8428189116859945,
+          "tp": 2362,
+          "tn": 2386,
+          "fp": 431,
+          "fn": 450,
+          "loss": 0.6051975029847787
+        },
+        "test": {
+          "accuracy": 0.8563685636856369,
+          "precision": 0.8850574712643678,
+          "recall": 0.8235294117647058,
+          "f1": 0.853185595567867,
+          "tp": 154,
+          "tn": 162,
+          "fp": 20,
+          "fn": 33,
+          "loss": 0.4707895643342801
+        },
+        "history": [
+          {
+            "epoch": 1,
+            "train_loss": 0.12937359696421602,
+            "validation_loss": 0.47695642126815785,
+            "validation_accuracy": 0.8466868004974241,
+            "validation_f1": 0.842661804922516,
+            "lr": 0.0008,
+            "embedding_lr": 0.0008,
+            "embedding_trainable": true
+          },
+          {
+            "epoch": 2,
+            "train_loss": 0.06722700133426437,
+            "validation_loss": 0.6051975029847787,
+            "validation_accuracy": 0.8434890744359567,
+            "validation_f1": 0.8428189116859945,
+            "lr": 0.0008,
+            "embedding_lr": 0.0008,
+            "embedding_trainable": true
+          },
+          {
+            "epoch": 3,
+            "train_loss": 0.0401357402800327,
+            "validation_loss": 0.7448804647466348,
+            "validation_accuracy": 0.836560667969444,
+            "validation_f1": 0.8353025420694594,
+            "lr": 0.0008,
+            "embedding_lr": 0.0008,
+            "embedding_trainable": true
+          },
+          {
+            "epoch": 4,
+            "train_loss": 0.02001617545668216,
+            "validation_loss": 0.9596445551878353,
+            "validation_accuracy": 0.8308758216379464,
+            "validation_f1": 0.8325712275765037,
+            "lr": 0.0004,
+            "embedding_lr": 0.0004,
+            "embedding_trainable": true
+          },
+          {
+            "epoch": 5,
+            "train_loss": 0.006978115819493132,
+            "validation_loss": 1.233917821171568,
+            "validation_accuracy": 0.8223485521406999,
+            "validation_f1": 0.8146775389177169,
+            "lr": 0.0004,
+            "embedding_lr": 0.0004,
+            "embedding_trainable": true
+          }
+        ],
+        "checkpoint": "/home/bingxing2/home/scx9kyg/research/AI-homework/outputs/tuning/tune_bigru_num_layers_2_best.pt",
+        "delta_vs_baseline": {
+          "validation_accuracy": -0.008171966601527747,
+          "validation_f1": -0.008366260297609118,
+          "test_accuracy": -0.005420054200542035,
+          "test_f1": -0.006318536663537988
+        }
+      }
+    },
+    {
+      "spec": {
+        "name": "tune_cnn_batch_size_64",
+        "family": "cnn",
+        "parameter_name": "batch_size",
+        "parameter_value": "64",
+        "baseline_name": "tune_cnn_base",
+        "description": "减小 batch size，观察梯度噪声和泛化效果的变化",
+        "train_config": {
+          "batch_size": 64,
+          "epochs": 10,
+          "learning_rate": 0.001,
+          "weight_decay": 0.0001,
+          "patience": 3,
+          "grad_clip": 0.0,
+          "seed": 42,
+          "embedding_learning_rate": null,
+          "label_smoothing": 0.0,
+          "warmup_epochs": 0,
+          "min_epochs": 1,
+          "freeze_embedding_epochs": 0,
+          "scheduler": "plateau",
+          "min_learning_rate_scale": 0.2
+        }
+      },
+      "result": {
+        "model_name": "tune_cnn_batch_size_64",
+        "best_epoch": 1,
+        "parameter_count": 2744904,
+        "train_seconds": 83.96386957168579,
+        "validation": {
+          "accuracy": 0.8445549831231125,
+          "precision": 0.8304332992152849,
+          "recall": 0.8655761024182077,
+          "f1": 0.8476406059550757,
+          "tp": 2434,
+          "tn": 2320,
+          "fp": 497,
+          "fn": 378,
+          "loss": 0.4782565546768515
+        },
+        "test": {
+          "accuracy": 0.8536585365853658,
+          "precision": 0.8674033149171271,
+          "recall": 0.839572192513369,
+          "f1": 0.8532608695652173,
+          "tp": 157,
+          "tn": 158,
+          "fp": 24,
+          "fn": 30,
+          "loss": 0.389704144744046
+        },
+        "history": [
+          {
+            "epoch": 1,
+            "train_loss": 0.22010783818770688,
+            "validation_loss": 0.4782565546768515,
+            "validation_accuracy": 0.8445549831231125,
+            "validation_f1": 0.8476406059550757,
+            "lr": 0.001,
+            "embedding_lr": 0.001,
+            "embedding_trainable": true
+          },
+          {
+            "epoch": 2,
+            "train_loss": 0.0750261890550222,
+            "validation_loss": 0.5361965380928024,
+            "validation_accuracy": 0.8408243027180672,
+            "validation_f1": 0.8400571224562656,
+            "lr": 0.001,
+            "embedding_lr": 0.001,
+            "embedding_trainable": true
+          },
+          {
+            "epoch": 3,
+            "train_loss": 0.03980577236997245,
+            "validation_loss": 0.6212145983590435,
+            "validation_accuracy": 0.8331852904601172,
+            "validation_f1": 0.8284931506849316,
+            "lr": 0.0005,
+            "embedding_lr": 0.0005,
+            "embedding_trainable": true
+          },
+          {
+            "epoch": 4,
+            "train_loss": 0.018705483585555474,
+            "validation_loss": 0.6594261652962906,
+            "validation_accuracy": 0.8305205187422278,
+            "validation_f1": 0.8302491103202848,
+            "lr": 0.0005,
+            "embedding_lr": 0.0005,
+            "embedding_trainable": true
+          }
+        ],
+        "checkpoint": "/home/bingxing2/home/scx9kyg/research/AI-homework/outputs/tuning/tune_cnn_batch_size_64_best.pt",
+        "delta_vs_baseline": {
+          "validation_accuracy": 0.0035530289571860108,
+          "validation_f1": 0.009925284105574361,
+          "test_accuracy": -0.0027100271002710175,
+          "test_f1": 0.004258020562368348
+        }
+      }
+    },
+    {
+      "spec": {
+        "name": "tune_cnn_epochs_6",
+        "family": "cnn",
+        "parameter_name": "epochs",
+        "parameter_value": "6",
+        "baseline_name": "tune_cnn_base",
+        "description": "缩短最大训练轮数，观察是否出现欠拟合",
+        "train_config": {
+          "batch_size": 128,
+          "epochs": 6,
+          "learning_rate": 0.001,
+          "weight_decay": 0.0001,
+          "patience": 3,
+          "grad_clip": 0.0,
+          "seed": 42,
+          "embedding_learning_rate": null,
+          "label_smoothing": 0.0,
+          "warmup_epochs": 0,
+          "min_epochs": 1,
+          "freeze_embedding_epochs": 0,
+          "scheduler": "plateau",
+          "min_learning_rate_scale": 0.2
+        }
+      },
+      "result": {
+        "model_name": "tune_cnn_epochs_6",
+        "best_epoch": 1,
+        "parameter_count": 2744904,
+        "train_seconds": 75.59224009513855,
+        "validation": {
+          "accuracy": 0.8461538461538461,
+          "precision": 0.8533042846768337,
+          "recall": 0.8357041251778093,
+          "f1": 0.8444125044915559,
+          "tp": 2350,
+          "tn": 2413,
+          "fp": 404,
+          "fn": 462,
+          "loss": 0.4640089183076912
+        },
+        "test": {
+          "accuracy": 0.8455284552845529,
+          "precision": 0.8823529411764706,
+          "recall": 0.8021390374331551,
+          "f1": 0.8403361344537815,
+          "tp": 150,
+          "tn": 162,
+          "fp": 20,
+          "fn": 37,
+          "loss": 0.4070385657755663
+        },
+        "history": [
+          {
+            "epoch": 1,
+            "train_loss": 0.24360781571160842,
+            "validation_loss": 0.4640089183076912,
+            "validation_accuracy": 0.8461538461538461,
+            "validation_f1": 0.8444125044915559,
+            "lr": 0.001,
+            "embedding_lr": 0.001,
+            "embedding_trainable": true
+          },
+          {
+            "epoch": 2,
+            "train_loss": 0.08011076830797689,
+            "validation_loss": 0.5182420874832154,
+            "validation_accuracy": 0.8420678628530822,
+            "validation_f1": 0.8407666129321154,
+            "lr": 0.001,
+            "embedding_lr": 0.001,
+            "embedding_trainable": true
+          },
+          {
+            "epoch": 3,
+            "train_loss": 0.049138011450510714,
+            "validation_loss": 0.5748824051206246,
+            "validation_accuracy": 0.8381595310001777,
+            "validation_f1": 0.8342732399490631,
+            "lr": 0.0005,
+            "embedding_lr": 0.0005,
+            "embedding_trainable": true
+          },
+          {
+            "epoch": 4,
+            "train_loss": 0.03039632824777492,
+            "validation_loss": 0.599604581469307,
+            "validation_accuracy": 0.8356724107301474,
+            "validation_f1": 0.8361381753764392,
+            "lr": 0.0005,
+            "embedding_lr": 0.0005,
+            "embedding_trainable": true
+          }
+        ],
+        "checkpoint": "/home/bingxing2/home/scx9kyg/research/AI-homework/outputs/tuning/tune_cnn_epochs_6_best.pt",
+        "delta_vs_baseline": {
+          "validation_accuracy": 0.0051518919879196545,
+          "validation_f1": 0.006697182642054544,
+          "test_accuracy": -0.010840108401083959,
+          "test_f1": -0.008666714549067422
+        }
+      }
+    },
+    {
+      "spec": {
+        "name": "tune_cnn_learning_rate_5e4",
+        "family": "cnn",
+        "parameter_name": "learning_rate",
+        "parameter_value": "5e-4",
+        "baseline_name": "tune_cnn_base",
+        "description": "降低学习率，观察收敛速度与最终性能变化",
+        "train_config": {
+          "batch_size": 128,
+          "epochs": 10,
+          "learning_rate": 0.0005,
+          "weight_decay": 0.0001,
+          "patience": 3,
+          "grad_clip": 0.0,
+          "seed": 42,
+          "embedding_learning_rate": null,
+          "label_smoothing": 0.0,
+          "warmup_epochs": 0,
+          "min_epochs": 1,
+          "freeze_embedding_epochs": 0,
+          "scheduler": "plateau",
+          "min_learning_rate_scale": 0.2
+        }
+      },
+      "result": {
+        "model_name": "tune_cnn_learning_rate_5e4",
+        "best_epoch": 2,
+        "parameter_count": 2744904,
+        "train_seconds": 93.55968952178955,
+        "validation": {
+          "accuracy": 0.8465091490495648,
+          "precision": 0.8498563218390804,
+          "recall": 0.8413940256045519,
+          "f1": 0.8456040028591851,
+          "tp": 2366,
+          "tn": 2399,
+          "fp": 418,
+          "fn": 446,
+          "loss": 0.4664143982842541
+        },
+        "test": {
+          "accuracy": 0.8509485094850948,
+          "precision": 0.8837209302325582,
+          "recall": 0.8128342245989305,
+          "f1": 0.8467966573816157,
+          "tp": 152,
+          "tn": 162,
+          "fp": 20,
+          "fn": 35,
+          "loss": 0.40286688110854246
+        },
+        "history": [
+          {
+            "epoch": 1,
+            "train_loss": 0.300951327848779,
+            "validation_loss": 0.41439875286899086,
+            "validation_accuracy": 0.844910286018831,
+            "validation_f1": 0.8419337316675719,
+            "lr": 0.0005,
+            "embedding_lr": 0.0005,
+            "embedding_trainable": true
+          },
+          {
+            "epoch": 2,
+            "train_loss": 0.11113662620594125,
+            "validation_loss": 0.4664143982842541,
+            "validation_accuracy": 0.8465091490495648,
+            "validation_f1": 0.8456040028591851,
+            "lr": 0.0005,
+            "embedding_lr": 0.0005,
+            "embedding_trainable": true
+          },
+          {
+            "epoch": 3,
+            "train_loss": 0.07607361197796496,
+            "validation_loss": 0.5046748170094075,
+            "validation_accuracy": 0.8434890744359567,
+            "validation_f1": 0.84071596456337,
+            "lr": 0.0005,
+            "embedding_lr": 0.0005,
+            "embedding_trainable": true
+          },
+          {
+            "epoch": 4,
+            "train_loss": 0.056378483986829445,
+            "validation_loss": 0.5326848122742782,
+            "validation_accuracy": 0.8408243027180672,
+            "validation_f1": 0.8410220014194464,
+            "lr": 0.00025,
+            "embedding_lr": 0.00025,
+            "embedding_trainable": true
+          },
+          {
+            "epoch": 5,
+            "train_loss": 0.04356142466623123,
+            "validation_loss": 0.5489756409578498,
+            "validation_accuracy": 0.8381595310001777,
+            "validation_f1": 0.8369429031680687,
+            "lr": 0.00025,
+            "embedding_lr": 0.00025,
+            "embedding_trainable": true
+          }
+        ],
+        "checkpoint": "/home/bingxing2/home/scx9kyg/research/AI-homework/outputs/tuning/tune_cnn_learning_rate_5e4_best.pt",
+        "delta_vs_baseline": {
+          "validation_accuracy": 0.005507194883638267,
+          "validation_f1": 0.007888681009683762,
+          "test_accuracy": -0.005420054200542035,
+          "test_f1": -0.0022061916212332555
+        }
+      }
+    },
+    {
+      "spec": {
+        "name": "tune_cnn_weight_decay_0",
+        "family": "cnn",
+        "parameter_name": "weight_decay",
+        "parameter_value": "0",
+        "baseline_name": "tune_cnn_base",
+        "description": "去掉 L2 正则，观察正则化缺失后的效果变化",
+        "train_config": {
+          "batch_size": 128,
+          "epochs": 10,
+          "learning_rate": 0.001,
+          "weight_decay": 0.0,
+          "patience": 3,
+          "grad_clip": 0.0,
+          "seed": 42,
+          "embedding_learning_rate": null,
+          "label_smoothing": 0.0,
+          "warmup_epochs": 0,
+          "min_epochs": 1,
+          "freeze_embedding_epochs": 0,
+          "scheduler": "plateau",
+          "min_learning_rate_scale": 0.2
+        }
+      },
+      "result": {
+        "model_name": "tune_cnn_weight_decay_0",
+        "best_epoch": 1,
+        "parameter_count": 2744904,
+        "train_seconds": 75.39140892028809,
+        "validation": {
+          "accuracy": 0.8417125599573636,
+          "precision": 0.8317789291882556,
+          "recall": 0.8563300142247511,
+          "f1": 0.8438759418258279,
+          "tp": 2408,
+          "tn": 2330,
+          "fp": 487,
+          "fn": 404,
+          "loss": 0.48134542937853936
+        },
+        "test": {
+          "accuracy": 0.8536585365853658,
+          "precision": 0.8715083798882681,
+          "recall": 0.8342245989304813,
+          "f1": 0.8524590163934427,
+          "tp": 156,
+          "tn": 159,
+          "fp": 23,
+          "fn": 31,
+          "loss": 0.38607274133176983
+        },
+        "history": [
+          {
+            "epoch": 1,
+            "train_loss": 0.21796905683434203,
+            "validation_loss": 0.48134542937853936,
+            "validation_accuracy": 0.8417125599573636,
+            "validation_f1": 0.8438759418258279,
+            "lr": 0.001,
+            "embedding_lr": 0.001,
+            "embedding_trainable": true
+          },
+          {
+            "epoch": 2,
+            "train_loss": 0.06840417326379283,
+            "validation_loss": 0.5415445794049452,
+            "validation_accuracy": 0.8399360454787707,
+            "validation_f1": 0.8375112714156898,
+            "lr": 0.001,
+            "embedding_lr": 0.001,
+            "embedding_trainable": true
+          },
+          {
+            "epoch": 3,
+            "train_loss": 0.04247574126309711,
+            "validation_loss": 0.6036688421860663,
+            "validation_accuracy": 0.8351394563865695,
+            "validation_f1": 0.8330935251798561,
+            "lr": 0.0005,
+            "embedding_lr": 0.0005,
+            "embedding_trainable": true
+          },
+          {
+            "epoch": 4,
+            "train_loss": 0.025349964509450897,
+            "validation_loss": 0.63168451515602,
+            "validation_accuracy": 0.8335405933558359,
+            "validation_f1": 0.833540593355836,
+            "lr": 0.0005,
+            "embedding_lr": 0.0005,
+            "embedding_trainable": true
+          }
+        ],
+        "checkpoint": "/home/bingxing2/home/scx9kyg/research/AI-homework/outputs/tuning/tune_cnn_weight_decay_0_best.pt",
+        "delta_vs_baseline": {
+          "validation_accuracy": 0.0007106057914371133,
+          "validation_f1": 0.0061606199763265534,
+          "test_accuracy": -0.0027100271002710175,
+          "test_f1": 0.003456167390593734
+        }
+      }
+    },
+    {
+      "spec": {
+        "name": "tune_cnn_patience_1",
+        "family": "cnn",
+        "parameter_name": "patience",
+        "parameter_value": "1",
+        "baseline_name": "tune_cnn_base",
+        "description": "更早触发早停，观察训练是否被过早截断",
+        "train_config": {
+          "batch_size": 128,
+          "epochs": 10,
+          "learning_rate": 0.001,
+          "weight_decay": 0.0001,
+          "patience": 1,
+          "grad_clip": 0.0,
+          "seed": 42,
+          "embedding_learning_rate": null,
+          "label_smoothing": 0.0,
+          "warmup_epochs": 0,
+          "min_epochs": 1,
+          "freeze_embedding_epochs": 0,
+          "scheduler": "plateau",
+          "min_learning_rate_scale": 0.2
+        }
+      },
+      "result": {
+        "model_name": "tune_cnn_patience_1",
+        "best_epoch": 1,
+        "parameter_count": 2744904,
+        "train_seconds": 38.42906999588013,
+        "validation": {
+          "accuracy": 0.843133771540238,
+          "precision": 0.8503450780966219,
+          "recall": 0.8325035561877667,
+          "f1": 0.8413297394429471,
+          "tp": 2341,
+          "tn": 2405,
+          "fp": 412,
+          "fn": 471,
+          "loss": 0.4876261729555796
+        },
+        "test": {
+          "accuracy": 0.8509485094850948,
+          "precision": 0.8928571428571429,
+          "recall": 0.8021390374331551,
+          "f1": 0.8450704225352113,
+          "tp": 150,
+          "tn": 164,
+          "fp": 18,
+          "fn": 37,
+          "loss": 0.4179299463263049
+        },
+        "history": [
+          {
+            "epoch": 1,
+            "train_loss": 0.1737215671433483,
+            "validation_loss": 0.4876261729555796,
+            "validation_accuracy": 0.843133771540238,
+            "validation_f1": 0.8413297394429471,
+            "lr": 0.001,
+            "embedding_lr": 0.001,
+            "embedding_trainable": true
+          },
+          {
+            "epoch": 2,
+            "train_loss": 0.05800241022573339,
+            "validation_loss": 0.557679549005193,
+            "validation_accuracy": 0.8372712737608812,
+            "validation_f1": 0.8360773085182535,
+            "lr": 0.001,
+            "embedding_lr": 0.001,
+            "embedding_trainable": true
+          }
+        ],
+        "checkpoint": "/home/bingxing2/home/scx9kyg/research/AI-homework/outputs/tuning/tune_cnn_patience_1_best.pt",
+        "delta_vs_baseline": {
+          "validation_accuracy": 0.002131817374311562,
+          "validation_f1": 0.003614417593445718,
+          "test_accuracy": -0.005420054200542035,
+          "test_f1": -0.003932426467637695
+        }
+      }
+    },
+    {
+      "spec": {
+        "name": "tune_bigru_grad_clip_1",
+        "family": "bigru",
+        "parameter_name": "grad_clip",
+        "parameter_value": "1.0",
+        "baseline_name": "tune_bigru_base",
+        "description": "更强梯度裁剪，观察循环模型训练稳定性变化",
+        "train_config": {
+          "batch_size": 64,
+          "epochs": 12,
+          "learning_rate": 0.0008,
+          "weight_decay": 0.0001,
+          "patience": 3,
+          "grad_clip": 1.0,
+          "seed": 42,
+          "embedding_learning_rate": null,
+          "label_smoothing": 0.0,
+          "warmup_epochs": 0,
+          "min_epochs": 1,
+          "freeze_embedding_epochs": 0,
+          "scheduler": "plateau",
+          "min_learning_rate_scale": 0.2
+        }
+      },
+      "result": {
+        "model_name": "tune_bigru_grad_clip_1",
+        "best_epoch": 2,
+        "parameter_count": 2805704,
+        "train_seconds": 554.2583620548248,
+        "validation": {
+          "accuracy": 0.8335405933558359,
+          "precision": 0.8245067497403946,
+          "recall": 0.8470839260312945,
+          "f1": 0.8356428696719874,
+          "tp": 2382,
+          "tn": 2310,
+          "fp": 507,
+          "fn": 430,
+          "loss": 0.6674972458850599
+        },
+        "test": {
+          "accuracy": 0.8482384823848238,
+          "precision": 0.8579234972677595,
+          "recall": 0.839572192513369,
+          "f1": 0.8486486486486486,
+          "tp": 157,
+          "tn": 156,
+          "fp": 26,
+          "fn": 30,
+          "loss": 0.5378570928160091
+        },
+        "history": [
+          {
+            "epoch": 1,
+            "train_loss": 0.0954454169892129,
+            "validation_loss": 0.6075348660712514,
+            "validation_accuracy": 0.827678095576479,
+            "validation_f1": 0.8339609722697706,
+            "lr": 0.0008,
+            "embedding_lr": 0.0008,
+            "embedding_trainable": true
+          },
+          {
+            "epoch": 2,
+            "train_loss": 0.030433389781830352,
+            "validation_loss": 0.6674972458850599,
+            "validation_accuracy": 0.8335405933558359,
+            "validation_f1": 0.8356428696719874,
+            "lr": 0.0008,
+            "embedding_lr": 0.0008,
+            "embedding_trainable": true
+          },
+          {
+            "epoch": 3,
+            "train_loss": 0.01626968869352957,
+            "validation_loss": 0.9563917022633244,
+            "validation_accuracy": 0.8280333984721976,
+            "validation_f1": 0.82689556509299,
+            "lr": 0.0008,
+            "embedding_lr": 0.0008,
+            "embedding_trainable": true
+          },
+          {
+            "epoch": 4,
+            "train_loss": 0.007648778590317519,
+            "validation_loss": 1.0091486316757317,
+            "validation_accuracy": 0.824125066619293,
+            "validation_f1": 0.8206521739130435,
+            "lr": 0.0004,
+            "embedding_lr": 0.0004,
+            "embedding_trainable": true
+          },
+          {
+            "epoch": 5,
+            "train_loss": 0.002766691858145032,
+            "validation_loss": 1.0454621508143092,
+            "validation_accuracy": 0.8230591579321371,
+            "validation_f1": 0.8230277185501067,
+            "lr": 0.0004,
+            "embedding_lr": 0.0004,
+            "embedding_trainable": true
+          }
+        ],
+        "checkpoint": "/home/bingxing2/home/scx9kyg/research/AI-homework/outputs/tuning/tune_bigru_grad_clip_1_best.pt",
+        "delta_vs_baseline": {
+          "validation_accuracy": -0.018120447681648555,
+          "validation_f1": -0.01554230231161624,
+          "test_accuracy": -0.013550135501355087,
+          "test_f1": -0.010855483582756342
+        }
+      }
+    },
+    {
+      "spec": {
+        "name": "tune_cnn_seed_7",
+        "family": "cnn",
+        "parameter_name": "seed",
+        "parameter_value": "7",
+        "baseline_name": "tune_cnn_base",
+        "description": "更换随机种子，评估结果的随机波动敏感性",
+        "train_config": {
+          "batch_size": 128,
+          "epochs": 10,
+          "learning_rate": 0.001,
+          "weight_decay": 0.0001,
+          "patience": 3,
+          "grad_clip": 0.0,
+          "seed": 7,
+          "embedding_learning_rate": null,
+          "label_smoothing": 0.0,
+          "warmup_epochs": 0,
+          "min_epochs": 1,
+          "freeze_embedding_epochs": 0,
+          "scheduler": "plateau",
+          "min_learning_rate_scale": 0.2
+        }
+      },
+      "result": {
+        "model_name": "tune_cnn_seed_7",
+        "best_epoch": 1,
+        "parameter_count": 2744904,
+        "train_seconds": 75.8313844203949,
+        "validation": {
+          "accuracy": 0.8376265766565998,
+          "precision": 0.8382038488952245,
+          "recall": 0.8364153627311522,
+          "f1": 0.8373086507653968,
+          "tp": 2352,
+          "tn": 2363,
+          "fp": 454,
+          "fn": 460,
+          "loss": 0.5140031249808215
+        },
+        "test": {
+          "accuracy": 0.8455284552845529,
+          "precision": 0.877906976744186,
+          "recall": 0.8074866310160428,
+          "f1": 0.8412256267409471,
+          "tp": 151,
+          "tn": 161,
+          "fp": 21,
+          "fn": 36,
+          "loss": 0.43681538957082805
+        },
+        "history": [
+          {
+            "epoch": 1,
+            "train_loss": 0.187913606070181,
+            "validation_loss": 0.5140031249808215,
+            "validation_accuracy": 0.8376265766565998,
+            "validation_f1": 0.8373086507653968,
+            "lr": 0.001,
+            "embedding_lr": 0.001,
+            "embedding_trainable": true
+          },
+          {
+            "epoch": 2,
+            "train_loss": 0.0517523850243811,
+            "validation_loss": 0.5997798201202986,
+            "validation_accuracy": 0.8299875643986498,
+            "validation_f1": 0.8316622691292876,
+            "lr": 0.001,
+            "embedding_lr": 0.001,
+            "embedding_trainable": true
+          },
+          {
+            "epoch": 3,
+            "train_loss": 0.03006006277600626,
+            "validation_loss": 0.6650789274926252,
+            "validation_accuracy": 0.827678095576479,
+            "validation_f1": 0.8249097472924188,
+            "lr": 0.0005,
+            "embedding_lr": 0.0005,
+            "embedding_trainable": true
+          },
+          {
+            "epoch": 4,
+            "train_loss": 0.017410987039886586,
+            "validation_loss": 0.7001477969880848,
+            "validation_accuracy": 0.8275004441286197,
+            "validation_f1": 0.825516621743037,
+            "lr": 0.0005,
+            "embedding_lr": 0.0005,
+            "embedding_trainable": true
+          }
+        ],
+        "checkpoint": "/home/bingxing2/home/scx9kyg/research/AI-homework/outputs/tuning/tune_cnn_seed_7_best.pt",
+        "delta_vs_baseline": {
+          "validation_accuracy": -0.0033753775093267047,
+          "validation_f1": -0.00040667108410452624,
+          "test_accuracy": -0.010840108401083959,
+          "test_f1": -0.007777222261901806
+        }
+      }
+    }
+  ]
+}

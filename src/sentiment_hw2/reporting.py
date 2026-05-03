@@ -11,41 +11,81 @@ from reportlab.lib.units import cm
 from reportlab.graphics.charts.barcharts import VerticalBarChart
 from reportlab.graphics.charts.legends import Legend
 from reportlab.graphics.charts.lineplots import LinePlot
-from reportlab.graphics import renderPDF
+from reportlab.graphics import renderPM
 from reportlab.graphics.shapes import Drawing, String
 from reportlab.graphics.widgets.markers import makeMarker
 from reportlab.pdfbase.cidfonts import UnicodeCIDFont
 from reportlab.pdfbase.pdfmetrics import registerFont
+from reportlab.pdfbase.ttfonts import TTFont
 from reportlab.platypus import Image as RLImage, KeepTogether, Paragraph, Spacer, Table, TableStyle
 
 from .experiment import model_label
 from .report_diagrams import ensure_diagram_assets
 
 
+ACTIVE_FONT_NAME = "STSong-Light"
+
+
 def register_fonts() -> None:
-    """注册中文字体，避免 ReportLab 默认字体无法正常显示汉字。"""
+    """注册中文字体，兼顾中文与正文中的英文、数字显示。"""
+    global ACTIVE_FONT_NAME
     registerFont(UnicodeCIDFont("STSong-Light"))
+    ACTIVE_FONT_NAME = "STSong-Light"
 
 
 def build_styles():
-    """定义整份报告复用的中文段落样式。"""
+    """定义整份课程论文报告复用的中文段落样式。"""
     styles = getSampleStyleSheet()
     styles.add(
         ParagraphStyle(
             name="TitleCN",
             parent=styles["Title"],
-            fontName="STSong-Light",
-            fontSize=18,
-            leading=24,
+            fontName=ACTIVE_FONT_NAME,
+            fontSize=20,
+            leading=30,
             alignment=TA_CENTER,
+            spaceAfter=6,
+        )
+    )
+    styles.add(
+        ParagraphStyle(
+            name="SubTitleCN",
+            parent=styles["Title"],
+            fontName=ACTIVE_FONT_NAME,
+            fontSize=14,
+            leading=20,
+            alignment=TA_CENTER,
+            spaceAfter=8,
+        )
+    )
+    styles.add(
+        ParagraphStyle(
+            name="MetaCN",
+            parent=styles["BodyText"],
+            fontName=ACTIVE_FONT_NAME,
+            fontSize=11,
+            leading=18,
+            alignment=TA_CENTER,
+            spaceAfter=2,
         )
     )
     styles.add(
         ParagraphStyle(
             name="HeadingCN",
-            parent=styles["Heading2"],
-            fontName="STSong-Light",
+            parent=styles["Heading1"],
+            fontName=ACTIVE_FONT_NAME,
             fontSize=14,
+            leading=22,
+            spaceBefore=14,
+            spaceAfter=8,
+        )
+    )
+    styles.add(
+        ParagraphStyle(
+            name="SubHeadingCN",
+            parent=styles["Heading2"],
+            fontName=ACTIVE_FONT_NAME,
+            fontSize=12.5,
             leading=20,
             spaceBefore=10,
             spaceAfter=6,
@@ -55,31 +95,60 @@ def build_styles():
         ParagraphStyle(
             name="BodyCN",
             parent=styles["BodyText"],
-            fontName="STSong-Light",
-            fontSize=10.5,
-            leading=18,
+            fontName=ACTIVE_FONT_NAME,
+            fontSize=12,
+            leading=20,
             alignment=TA_JUSTIFY,
+            firstLineIndent=24,
+            spaceAfter=4,
+        )
+    )
+    styles.add(
+        ParagraphStyle(
+            name="BodyNoIndentCN",
+            parent=styles["BodyCN"],
+            firstLineIndent=0,
         )
     )
     styles.add(
         ParagraphStyle(
             name="CaptionCN",
             parent=styles["BodyText"],
-            fontName="STSong-Light",
-            fontSize=9.5,
+            fontName=ACTIVE_FONT_NAME,
+            fontSize=10,
             leading=14,
             alignment=TA_CENTER,
-            textColor=colors.HexColor("#5A4B3C"),
+            spaceBefore=2,
+            spaceAfter=6,
+        )
+    )
+    styles.add(
+        ParagraphStyle(
+            name="KeywordCN",
+            parent=styles["BodyNoIndentCN"],
+            fontName=ACTIVE_FONT_NAME,
+            fontSize=11,
+            leading=18,
         )
     )
     styles.add(
         ParagraphStyle(
             name="SmallCN",
             parent=styles["BodyText"],
-            fontName="STSong-Light",
-            fontSize=9.1,
-            leading=12.2,
+            fontName=ACTIVE_FONT_NAME,
+            fontSize=9,
+            leading=13,
             alignment=TA_JUSTIFY,
+        )
+    )
+    styles.add(
+        ParagraphStyle(
+            name="ReferenceCN",
+            parent=styles["BodyText"],
+            fontName=ACTIVE_FONT_NAME,
+            fontSize=10.5,
+            leading=16,
+            spaceAfter=2,
         )
     )
     return styles
@@ -101,15 +170,15 @@ MODEL_CONFIGS = {
     },
     "birnn": {
         "core": "hidden_dim=128, num_layers=1, dropout=0.3",
-        "train": "batch=64, epochs=12, lr=8e-4, wd=1e-4, patience=3, clip=5",
+        "train": "batch=64, epochs=14, lr=3e-4, emb_lr=8e-5, wd=3e-4, patience=4, clip=1, warmup=2",
     },
     "bilstm": {
         "core": "hidden_dim=128, num_layers=1, dropout=0.3",
-        "train": "batch=64, epochs=12, lr=8e-4, wd=1e-4, patience=3, clip=5",
+        "train": "batch=64, epochs=14, lr=3e-4, emb_lr=8e-5, wd=3e-4, patience=4, clip=1, warmup=2",
     },
     "bigru": {
         "core": "hidden_dim=128, num_layers=1, dropout=0.3",
-        "train": "batch=64, epochs=12, lr=8e-4, wd=1e-4, patience=3, clip=5",
+        "train": "batch=64, epochs=14, lr=3e-4, emb_lr=8e-5, wd=3e-4, patience=4, clip=1, warmup=2",
     },
 }
 
@@ -147,11 +216,42 @@ def add_legend(
     legend.dy = 8
     legend.deltax = deltax
     legend.deltay = deltay
-    legend.fontName = "STSong-Light"
+    legend.fontName = ACTIVE_FONT_NAME
     legend.fontSize = 8
     legend.columnMaximum = len(entries) if column_maximum is None else column_maximum
     legend.colorNamePairs = list(entries)
     drawing.add(legend)
+
+
+def apply_academic_table_style(
+    table: Table,
+    font_size: float = 9,
+    header_background=colors.HexColor("#F2F2F2"),
+    align: str = "CENTER",
+) -> Table:
+    """统一应用更接近课程论文风格的黑白表格样式。"""
+    table.setStyle(
+        TableStyle(
+            [
+                ("FONTNAME", (0, 0), (-1, -1), ACTIVE_FONT_NAME),
+                ("FONTSIZE", (0, 0), (-1, -1), font_size),
+                ("TEXTCOLOR", (0, 0), (-1, -1), colors.black),
+                ("BACKGROUND", (0, 0), (-1, 0), header_background),
+                ("BOX", (0, 0), (-1, -1), 0.8, colors.black),
+                ("INNERGRID", (0, 0), (-1, -1), 0.5, colors.grey),
+                ("LINEABOVE", (0, 0), (-1, 0), 0.8, colors.black),
+                ("LINEBELOW", (0, 0), (-1, 0), 0.8, colors.black),
+                ("LINEBELOW", (0, -1), (-1, -1), 0.8, colors.black),
+                ("ALIGN", (0, 0), (-1, -1), align),
+                ("VALIGN", (0, 0), (-1, -1), "MIDDLE"),
+                ("LEFTPADDING", (0, 0), (-1, -1), 5),
+                ("RIGHTPADDING", (0, 0), (-1, -1), 5),
+                ("TOPPADDING", (0, 0), (-1, -1), 4),
+                ("BOTTOMPADDING", (0, 0), (-1, -1), 4),
+            ]
+        )
+    )
+    return table
 
 
 def metric_table(results: List[Dict[str, object]]) -> Table:
@@ -170,26 +270,14 @@ def metric_table(results: List[Dict[str, object]]) -> Table:
             ]
         )
     table = Table(rows, colWidths=[2.6 * cm, 2.0 * cm, 2.4 * cm, 2.4 * cm, 2.4 * cm, 2.4 * cm, 2.6 * cm])
-    table.setStyle(
-        TableStyle(
-            [
-                ("FONTNAME", (0, 0), (-1, -1), "STSong-Light"),
-                ("FONTSIZE", (0, 0), (-1, -1), 9),
-                ("BACKGROUND", (0, 0), (-1, 0), colors.HexColor("#D9EAF7")),
-                ("GRID", (0, 0), (-1, -1), 0.5, colors.grey),
-                ("ALIGN", (0, 0), (-1, -1), "CENTER"),
-                ("VALIGN", (0, 0), (-1, -1), "MIDDLE"),
-            ]
-        )
-    )
-    return table
+    return apply_academic_table_style(table, font_size=9)
 
 
 def parameter_table(results: List[Dict[str, object]]) -> Table:
     """把主模型的结构参数和训练参数合并成一张总表。"""
     small_style = ParagraphStyle(
         name="TableSmallCN",
-        fontName="STSong-Light",
+        fontName=ACTIVE_FONT_NAME,
         fontSize=7.5,
         leading=9,
     )
@@ -207,19 +295,7 @@ def parameter_table(results: List[Dict[str, object]]) -> Table:
             ]
         )
     table = Table(rows, colWidths=[1.8 * cm, 4.6 * cm, 5.8 * cm, 1.6 * cm, 1.6 * cm, 2.0 * cm])
-    table.setStyle(
-        TableStyle(
-            [
-                ("FONTNAME", (0, 0), (-1, -1), "STSong-Light"),
-                ("FONTSIZE", (0, 0), (-1, -1), 8.0),
-                ("BACKGROUND", (0, 0), (-1, 0), colors.HexColor("#EAF2F8")),
-                ("GRID", (0, 0), (-1, -1), 0.5, colors.grey),
-                ("ALIGN", (0, 0), (-1, -1), "CENTER"),
-                ("VALIGN", (0, 0), (-1, -1), "MIDDLE"),
-            ]
-        )
-    )
-    return table
+    return apply_academic_table_style(table, font_size=8.0)
 
 
 def loss_curve_drawing(result: Dict[str, object], width: float = 15.8 * cm, height: float = 6.0 * cm) -> Drawing:
@@ -230,12 +306,12 @@ def loss_curve_drawing(result: Dict[str, object], width: float = 15.8 * cm, heig
     epochs = [record["epoch"] for record in history]
     y_max = max(max(value for _, value in train_points), max(value for _, value in val_points))
 
-    drawing = Drawing(width, height + 18)
+    drawing = Drawing(width, height + 14)
     chart = LinePlot()
     chart.x = 42
-    chart.y = 26
+    chart.y = 18
     chart.width = width - 74
-    chart.height = height - 26
+    chart.height = height - 10
     chart.data = [train_points, val_points]
     chart.joinedLines = 1
     chart.lines[0].strokeColor = colors.HexColor("#2563EB")
@@ -251,8 +327,18 @@ def loss_curve_drawing(result: Dict[str, object], width: float = 15.8 * cm, heig
     chart.yValueAxis.valueMax = y_max * 1.08
     chart.yValueAxis.valueStep = max(0.05, round(y_max / 5.0, 2))
     drawing.add(chart)
-    drawing.add(String(42, height + 2, "{} 训练曲线".format(model_label(result["model_name"])), fontName="STSong-Light", fontSize=10))
-    drawing.add(String(42, 8, "蓝线: train_loss   红线: validation_loss", fontName="STSong-Light", fontSize=8))
+    add_legend(
+        drawing,
+        x=width - 110,
+        y=height + 1,
+        entries=[
+            (colors.HexColor("#2563EB"), "训练集损失"),
+            (colors.HexColor("#DC2626"), "验证集损失"),
+        ],
+        column_maximum=2,
+        deltax=44,
+        deltay=10,
+    )
     return drawing
 
 
@@ -290,11 +376,10 @@ def validation_f1_curve_drawing(
         chart.lines[idx].symbol.strokeColor = color
         chart.lines[idx].symbol.fillColor = color
     drawing.add(chart)
-    drawing.add(String(42, height + 2, "各模型验证集 F1 收敛对比", fontName="STSong-Light", fontSize=10))
     add_legend(
         drawing,
         x=width - 102,
-        y=height - 8,
+        y=height + 1,
         entries=[(CHART_COLORS[idx % len(CHART_COLORS)], model_label(result["model_name"])) for idx, result in enumerate(ordered_results)],
         column_maximum=5,
         deltax=38,
@@ -316,17 +401,17 @@ def grouped_metric_bar_chart(
     value_step: float = 0.1,
 ) -> Drawing:
     """生成两组指标并列柱状图。"""
-    drawing = Drawing(width, height + 20)
+    drawing = Drawing(width, height + 16)
     chart = VerticalBarChart()
     chart.x = 42
-    chart.y = 24
-    chart.width = width - 74
-    chart.height = height - 16
+    chart.y = 20
+    chart.width = width - 126
+    chart.height = height - 6
     chart.data = [list(values) for values in series]
     chart.groupSpacing = 12
     chart.barSpacing = 3
     chart.categoryAxis.categoryNames = list(category_names)
-    chart.categoryAxis.labels.fontName = "STSong-Light"
+    chart.categoryAxis.labels.fontName = ACTIVE_FONT_NAME
     chart.categoryAxis.labels.fontSize = 8
     chart.categoryAxis.labels.dy = -8
     chart.valueAxis.labels.fontName = "Helvetica"
@@ -342,17 +427,16 @@ def grouped_metric_bar_chart(
     for idx in range(len(series)):
         chart.bars[idx].fillColor = CHART_COLORS[idx % len(CHART_COLORS)]
     drawing.add(chart)
-    drawing.add(String(42, height + 4, title, fontName="STSong-Light", fontSize=10))
-    drawing.add(
-        String(
-            42,
-            10,
-            "蓝柱: {}    红柱: {}".format(legend_labels[0], legend_labels[1]),
-            fontName="STSong-Light",
-            fontSize=7.6,
-        )
+    add_legend(
+        drawing,
+        x=width - 76,
+        y=height - 2,
+        entries=[(CHART_COLORS[idx % len(CHART_COLORS)], label) for idx, label in enumerate(legend_labels)],
+        column_maximum=2,
+        deltax=36,
+        deltay=10,
     )
-    drawing.add(String(42, 2, footnote, fontName="STSong-Light", fontSize=7.6))
+    drawing.add(String(42, 4, footnote, fontName=ACTIVE_FONT_NAME, fontSize=7.2))
     return drawing
 
 
@@ -401,13 +485,12 @@ def robustness_table(summary: Dict[str, object]) -> Table:
         )
     col_widths = [7.3 * cm, 1.5 * cm] + [1.25 * cm for _ in ordered_models]
     table = Table(rows, colWidths=col_widths)
+    apply_academic_table_style(table, font_size=8.1, align="CENTER")
     table.setStyle(
         TableStyle(
             [
-                ("FONTNAME", (0, 0), (-1, -1), "STSong-Light"),
-                ("FONTSIZE", (0, 0), (-1, -1), 8.1),
-                ("BACKGROUND", (0, 0), (-1, 0), colors.HexColor("#F7E7C6")),
-                ("GRID", (0, 0), (-1, -1), 0.5, colors.grey),
+                ("ALIGN", (0, 1), (1, -1), "CENTER"),
+                ("ALIGN", (2, 1), (-1, -1), "CENTER"),
                 ("VALIGN", (0, 0), (-1, -1), "MIDDLE"),
             ]
         )
@@ -431,19 +514,27 @@ def external_robustness_table(results: List[Dict[str, object]]) -> Table:
             ]
         )
     table = Table(rows, colWidths=[2.0 * cm, 2.0 * cm, 2.0 * cm, 2.0 * cm, 2.0 * cm, 2.0 * cm, 2.0 * cm])
-    table.setStyle(
-        TableStyle(
+    return apply_academic_table_style(table, font_size=8.5)
+
+
+def hyperparameter_tuning_table(variants: List[Dict[str, object]]) -> Table:
+    """把逐个超参数调节结果整理成总表。"""
+    rows = [["超参数", "代表模型", "调整值", "测试集 Acc", "测试集 F1", "相对基线 ΔF1"]]
+    for item in variants:
+        spec = item["spec"]
+        result = item["result"]
+        rows.append(
             [
-                ("FONTNAME", (0, 0), (-1, -1), "STSong-Light"),
-                ("FONTSIZE", (0, 0), (-1, -1), 8.5),
-                ("BACKGROUND", (0, 0), (-1, 0), colors.HexColor("#FDEBD0")),
-                ("GRID", (0, 0), (-1, -1), 0.5, colors.grey),
-                ("ALIGN", (0, 0), (-1, -1), "CENTER"),
-                ("VALIGN", (0, 0), (-1, -1), "MIDDLE"),
+                spec["parameter_name"],
+                model_label(spec["family"]),
+                spec["parameter_value"],
+                "{:.4f}".format(result["test"]["accuracy"]),
+                "{:.4f}".format(result["test"]["f1"]),
+                "{:+.4f}".format(result["delta_vs_baseline"]["test_f1"]),
             ]
         )
-    )
-    return table
+    table = Table(rows, colWidths=[2.3 * cm, 2.1 * cm, 2.0 * cm, 2.3 * cm, 2.3 * cm, 2.8 * cm])
+    return apply_academic_table_style(table, font_size=8.5)
 
 
 def ablation_table(ablations: List[Dict[str, object]]) -> Table:
@@ -460,35 +551,36 @@ def ablation_table(ablations: List[Dict[str, object]]) -> Table:
             ]
         )
     table = Table(rows, colWidths=[5.2 * cm, 2.6 * cm, 2.6 * cm, 2.6 * cm, 2.6 * cm])
-    table.setStyle(
-        TableStyle(
-            [
-                ("FONTNAME", (0, 0), (-1, -1), "STSong-Light"),
-                ("FONTSIZE", (0, 0), (-1, -1), 9),
-                ("BACKGROUND", (0, 0), (-1, 0), colors.HexColor("#E8F3DD")),
-                ("GRID", (0, 0), (-1, -1), 0.5, colors.grey),
-                ("ALIGN", (0, 0), (-1, -1), "CENTER"),
-            ]
-        )
-    )
-    return table
+    return apply_academic_table_style(table, font_size=9)
 
 
 def build_curve_section(results: List[Dict[str, object]], styles) -> List:
     """生成主模型训练曲线章节。"""
-    blocks: List = [paragraph("4. 训练过程曲线", styles, "HeadingCN")]
-    blocks.append(paragraph(
-        "下面给出主实验各模型的训练损失曲线。蓝线表示训练集损失，红线表示验证集损失。大多数模型都能在前几轮快速下降并逐渐趋于平稳，这也说明早停策略有效地减少了后期的无效训练。",
-        styles,
-    ))
-    for result in results:
-        blocks.append(paragraph("{} 训练曲线".format(model_label(result["model_name"])), styles, "CaptionCN"))
-        blocks.append(Spacer(1, 0.08 * cm))
+    figure_numbers = {"mlp": 4, "cnn": 5, "birnn": 6, "bilstm": 7, "bigru": 8}
+    ordered_results = ordered_main_results(results)
+    blocks: List = [
+        paragraph(
+            "为展示不同结构在训练阶段的收敛特征，图4至图9给出了各模型训练损失与验证集 F1 的变化过程。整体上，多数模型都在前几轮快速下降，随后逐步进入平台期，这与验证集早停策略的触发时机基本一致。",
+            styles,
+        )
+    ]
+    for result in ordered_results:
         blocks.append(loss_curve_drawing(result))
+        blocks.append(Spacer(1, 0.06 * cm))
+        blocks.append(
+            paragraph(
+                "图{}  {}训练集与验证集损失曲线".format(
+                    figure_numbers[result["model_name"]],
+                    model_label(result["model_name"]),
+                ),
+                styles,
+                "CaptionCN",
+            )
+        )
         blocks.append(Spacer(1, 0.18 * cm))
-    blocks.append(paragraph("图 2-6  各模型验证集 F1 收敛对比", styles, "CaptionCN"))
-    blocks.append(Spacer(1, 0.08 * cm))
-    blocks.append(validation_f1_curve_drawing(results))
+    blocks.append(validation_f1_curve_drawing(ordered_results))
+    blocks.append(Spacer(1, 0.06 * cm))
+    blocks.append(paragraph("图9  各模型验证集 F1 收敛曲线", styles, "CaptionCN"))
     blocks.append(Spacer(1, 0.18 * cm))
     return blocks
 
@@ -498,26 +590,26 @@ def export_report_charts(
     results: Sequence[Dict[str, object]],
     external_results: Sequence[Dict[str, object]] = None,
 ) -> Dict[str, Path]:
-    """把程序直接生成的图表额外导出成独立 PDF 文件。"""
+    """把程序直接生成的图表额外导出成独立 PNG 文件。"""
     asset_dir.mkdir(parents=True, exist_ok=True)
     exported: Dict[str, Path] = {}
 
     for result in ordered_main_results(results):
-        path = asset_dir / "{}_loss_curve.pdf".format(result["model_name"])
-        renderPDF.drawToFile(loss_curve_drawing(result), str(path))
+        path = asset_dir / "{}_loss_curve.png".format(result["model_name"])
+        renderPM.drawToFile(loss_curve_drawing(result), str(path), fmt="PNG")
         exported["{}_loss_curve".format(result["model_name"])] = path
 
-    validation_path = asset_dir / "validation_f1_curve.pdf"
-    renderPDF.drawToFile(validation_f1_curve_drawing(results), str(validation_path))
+    validation_path = asset_dir / "validation_f1_curve.png"
+    renderPM.drawToFile(validation_f1_curve_drawing(results), str(validation_path), fmt="PNG")
     exported["validation_f1_curve"] = validation_path
 
-    metric_path = asset_dir / "test_metric_bar_chart.pdf"
-    renderPDF.drawToFile(test_metric_bar_chart(results), str(metric_path))
+    metric_path = asset_dir / "test_metric_bar_chart.png"
+    renderPM.drawToFile(test_metric_bar_chart(results), str(metric_path), fmt="PNG")
     exported["test_metric_bar_chart"] = metric_path
 
     if external_results:
-        external_path = asset_dir / "external_robustness_chart.pdf"
-        renderPDF.drawToFile(external_robustness_chart(external_results), str(external_path))
+        external_path = asset_dir / "external_robustness_chart.png"
+        renderPM.drawToFile(external_robustness_chart(external_results), str(external_path), fmt="PNG")
         exported["external_robustness_chart"] = external_path
 
     return exported
@@ -542,9 +634,9 @@ def diagram_block(caption: str, path: Path, explanation: str, styles) -> KeepTog
     """把图题、图片和对应文字说明打包成一个版式块。"""
     return KeepTogether(
         [
-            paragraph(caption, styles, "CaptionCN"),
-            Spacer(1, 0.08 * cm),
             report_image(path),
+            Spacer(1, 0.08 * cm),
+            paragraph(caption, styles, "CaptionCN"),
             Spacer(1, 0.12 * cm),
             paragraph(explanation, styles),
             Spacer(1, 0.18 * cm),
@@ -623,18 +715,12 @@ def cnn_probability_example_table(styles) -> Table:
         ],
     ]
     table = Table(rows, colWidths=[2.5 * cm, 13.3 * cm])
+    apply_academic_table_style(table, font_size=8.3, align="LEFT")
     table.setStyle(
         TableStyle(
             [
-                ("FONTNAME", (0, 0), (-1, -1), "STSong-Light"),
-                ("BACKGROUND", (0, 0), (-1, 0), colors.HexColor("#EEF5FB")),
-                ("GRID", (0, 0), (-1, -1), 0.5, colors.grey),
-                ("VALIGN", (0, 0), (-1, -1), "TOP"),
                 ("ALIGN", (0, 0), (0, -1), "CENTER"),
-                ("LEFTPADDING", (0, 0), (-1, -1), 6),
-                ("RIGHTPADDING", (0, 0), (-1, -1), 6),
-                ("TOPPADDING", (0, 0), (-1, -1), 5),
-                ("BOTTOMPADDING", (0, 0), (-1, -1), 5),
+                ("VALIGN", (0, 0), (-1, -1), "TOP"),
             ]
         )
     )
@@ -695,18 +781,12 @@ def recurrent_hello_example_table(styles) -> Table:
         ],
     ]
     table = Table(rows, colWidths=[2.8 * cm, 13.0 * cm])
+    apply_academic_table_style(table, font_size=8.3, align="LEFT")
     table.setStyle(
         TableStyle(
             [
-                ("FONTNAME", (0, 0), (-1, -1), "STSong-Light"),
-                ("BACKGROUND", (0, 0), (-1, 0), colors.HexColor("#EEF5FB")),
-                ("GRID", (0, 0), (-1, -1), 0.5, colors.grey),
-                ("VALIGN", (0, 0), (-1, -1), "TOP"),
                 ("ALIGN", (0, 0), (0, -1), "CENTER"),
-                ("LEFTPADDING", (0, 0), (-1, -1), 6),
-                ("RIGHTPADDING", (0, 0), (-1, -1), 6),
-                ("TOPPADDING", (0, 0), (-1, -1), 5),
-                ("BOTTOMPADDING", (0, 0), (-1, -1), 5),
+                ("VALIGN", (0, 0), (-1, -1), "TOP"),
             ]
         )
     )
@@ -722,28 +802,29 @@ def build_model_diagram_section(asset_dir: Path, styles) -> List:
             styles,
         ),
         diagram_block(
-            "图 2-1  MLP 基线模型结构图",
+            "图1  MLP 基线模型结构图",
             diagram_paths["mlp"],
             "MLP 基线模型先将长度不超过 80 的句子映射为 80 x 50 的可微调预训练词向量序列，再根据真实长度对非 PAD 位置做 masked mean pooling，压缩成 50 维句向量。分类头对应代码中的 `Dropout(0.3) -> Linear(50,128) -> ReLU -> Dropout(0.3) -> Linear(128,2)`，参数量较小、训练速度快，但会显式丢失词序信息。",
             styles,
         ),
         diagram_block(
-            "图 2-2  TextCNN 模型结构图",
+            "图2  TextCNN 模型结构图",
             diagram_paths["cnn"],
             "TextCNN 在嵌入层后并行使用 3、4、5 三种卷积核尺寸，每种尺寸配置 128 个卷积核，对应不同长度的局部情感短语窗口。各卷积分支经 ReLU 和时间维最大池化后分别得到 128 维向量，拼接成 384 维句向量，再经过 `Dropout(0.5)` 和全连接层完成二分类，因此它尤其擅长提取“非常 失望”“节奏 混乱”这类局部触发模式。",
             styles,
         ),
         diagram_block(
-            "图 2-3  BiGRU 模型结构图",
+            "图3  BiGRU 模型结构图",
             diagram_paths["bigru"],
             "BiGRU 先根据真实长度在每个时间步构造掩码，显式跳过补齐位置的状态更新；随后手写双向 GRU 从前向和后向同时编码上下文。分类时仅取最后一层的前向隐藏状态与后向隐藏状态拼接，得到 256 维句向量，并经过 `Dropout(0.3) -> Linear(256,2)` 输出结果。该结构保留了顺序与上下文依赖，但计算成本高于 CNN。",
             styles,
         ),
-        paragraph("2.1 以图 2-2 的 TextCNN 为例说明单样本如何一步步得到概率", styles, "CaptionCN"),
+        paragraph("以 TextCNN 为例的单样本概率计算过程", styles, "SubHeadingCN"),
         paragraph(
             "下面给出一个与结构图顺序完全一致的数值化示例，目的是说明“输入样本 -> 卷积特征 -> logits -> softmax 概率”这一整条链路在概率统计层面究竟是如何计算出来的。这个例子为了便于手算，故意把真实实验中的 50 维词向量、多个卷积核和更高维的全连接层缩减成了极简版本，但计算逻辑与正式模型完全一致。",
             styles,
         ),
+        paragraph("表1  TextCNN 单样本前向传播与概率计算示例", styles, "CaptionCN"),
         cnn_probability_example_table(styles),
         Spacer(1, 0.18 * cm),
         paragraph(

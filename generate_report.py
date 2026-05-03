@@ -14,6 +14,8 @@ from src.sentiment_hw2.reporting import (
     build_styles,
     external_robustness_chart,
     external_robustness_table,
+    export_report_charts,
+    hyperparameter_tuning_table,
     metric_table,
     parameter_table,
     paragraph,
@@ -28,7 +30,8 @@ ROOT = Path(__file__).resolve().parent
 OUTPUT_DIR = ROOT / "outputs"
 SUMMARY_PATH = OUTPUT_DIR / "experiment_summary.json"
 EXTERNAL_ROBUSTNESS_PATH = OUTPUT_DIR / "external_robustness_metrics.json"
-REPORT_PATH = ROOT / "实验二报告.pdf"
+HYPERPARAM_TUNING_PATH = OUTPUT_DIR / "hyperparameter_tuning_summary.json"
+REPORT_PATH = ROOT / "学号_姓名.pdf"
 
 
 def main():
@@ -46,6 +49,14 @@ def main():
     external_robustness = None
     if EXTERNAL_ROBUSTNESS_PATH.exists():
         external_robustness = json.loads(EXTERNAL_ROBUSTNESS_PATH.read_text(encoding="utf-8"))
+    hyperparameter_tuning = None
+    if HYPERPARAM_TUNING_PATH.exists():
+        hyperparameter_tuning = json.loads(HYPERPARAM_TUNING_PATH.read_text(encoding="utf-8"))
+    export_report_charts(
+        OUTPUT_DIR / "report_assets",
+        results,
+        external_robustness["results"] if external_robustness is not None else None,
+    )
 
     story = []
     story.append(paragraph("《人工智能导论》实验二报告", styles, "TitleCN"))
@@ -64,7 +75,7 @@ def main():
         styles,
     ))
     story.append(paragraph(
-        "实现中统一采用 Adam 优化器，损失函数为交叉熵。验证集连续若干轮不提升则提前停止，以减少固定训练轮数带来的过拟合风险。",
+        "实现中采用 AdamW 优化器，损失函数为交叉熵；对循环模型额外使用更小的词向量学习率、短暂 warmup 和更保守的早停条件，以减少手写循环单元在前几轮过快过拟合的问题。验证集连续若干轮不提升时再提前停止，从而兼顾训练稳定性与效率。",
         styles,
     ))
 
@@ -114,6 +125,24 @@ def main():
         "从附加对比实验可以看出，TextCNN 的卷积核数量从 64 提升到 128 后，局部模式提取能力更强；BiRNN、BiLSTM、BiGRU 的隐藏维度从 64 提升到 128 后，也更有利于保留上下文信息，但参数量和训练时间会同步增加。",
         styles,
     ))
+    if hyperparameter_tuning is not None:
+        tuning_variants = hyperparameter_tuning["variants"]
+        best_variant = max(tuning_variants, key=lambda item: item["result"]["delta_vs_baseline"]["test_f1"])
+        worst_variant = min(tuning_variants, key=lambda item: item["result"]["delta_vs_baseline"]["test_f1"])
+        story.append(Spacer(1, 0.15 * cm))
+        story.append(paragraph(
+            "为了满足“逐个超参数调节”的要求，实验进一步采用单变量调参方式：每次只修改一个超参数，其余设置保持对应基线模型不变。调参覆盖了 `hidden_dim`、`dropout`、`num_filters`、`filter_sizes`、`num_layers`、`batch_size`、`epochs`、`learning_rate`、`weight_decay`、`patience`、`grad_clip` 和 `seed` 共 12 项。",
+            styles,
+        ))
+        story.append(hyperparameter_tuning_table(tuning_variants))
+        story.append(Spacer(1, 0.15 * cm))
+        story.append(paragraph(
+            "从单变量调参结果看，最有效的改动是把 TextCNN 的卷积核窗口改为更偏短语级的配置，使测试集 F1 相比基线提升了 <b>{:+.4f}</b>；而退化最明显的是把 BiGRU 的梯度裁剪从 5.0 收紧到 1.0，测试集 F1 下降了 <b>{:+.4f}</b>。综合来看，模型容量过小、训练轮数过少、过早早停或过强梯度裁剪更容易导致性能下降；而适度增大 MLP 隐层维度、提高 dropout、减小 CNN batch size 等改动则带来了小幅收益。".format(
+                best_variant["result"]["delta_vs_baseline"]["test_f1"],
+                worst_variant["result"]["delta_vs_baseline"]["test_f1"],
+            ),
+            styles,
+        ))
 
     story.append(paragraph("6. 模型比较与原因分析", styles, "HeadingCN"))
     story.append(paragraph(
@@ -127,7 +156,7 @@ def main():
         styles,
     ))
     story.append(paragraph(
-        "从图 4-6 的验证集 F1 收敛过程看，BiRNN、BiLSTM 和 BiGRU 的最优轮次分别出现在第 {}、{}、{} 轮，TextCNN 出现在第 {} 轮，MLP 则延后到第 {} 轮。这与损失曲线后期验证集不再改善的现象一致，也进一步说明早停确实避免了无效训练。".format(
+        "从图 2-6 的验证集 F1 收敛过程看，BiRNN、BiLSTM 和 BiGRU 的最优轮次分别出现在第 {}、{}、{} 轮，TextCNN 出现在第 {} 轮，MLP 则延后到第 {} 轮。这与损失曲线后期验证集不再改善的现象一致，也进一步说明早停确实避免了无效训练。".format(
             result_by_name["birnn"]["best_epoch"],
             result_by_name["bilstm"]["best_epoch"],
             result_by_name["bigru"]["best_epoch"],
