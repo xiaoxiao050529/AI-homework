@@ -1,0 +1,141 @@
+{
+  "model_name": "tune_birnn_num_layers_3",
+  "best_epoch": 5,
+  "parameter_count": 2911176,
+  "train_seconds": 2983.0445103645325,
+  "validation": {
+    "accuracy": 0.7997868182625688,
+    "precision": 0.7567814690643097,
+    "recall": 0.8830014224751067,
+    "f1": 0.8150336451665846,
+    "tp": 2483,
+    "tn": 2019,
+    "fp": 798,
+    "fn": 329,
+    "loss": 0.5277832891996556
+  },
+  "test": {
+    "accuracy": 0.8184281842818428,
+    "precision": 0.7970297029702971,
+    "recall": 0.8609625668449198,
+    "f1": 0.8277634961439588,
+    "tp": 161,
+    "tn": 141,
+    "fp": 41,
+    "fn": 26,
+    "loss": 0.46748198435558536
+  },
+  "history": [
+    {
+      "epoch": 1,
+      "train_loss": 0.8279712742859751,
+      "validation_loss": 0.6457181736088324,
+      "validation_accuracy": 0.7656777402735833,
+      "validation_f1": 0.7899347029781812,
+      "lr": 7.687499999999998e-05,
+      "embedding_lr": 1.5374999999999998e-05,
+      "embedding_trainable": false
+    },
+    {
+      "epoch": 2,
+      "train_loss": 0.615665906103793,
+      "validation_loss": 0.6210145068319002,
+      "validation_accuracy": 0.7777580387280156,
+      "validation_f1": 0.7526201305121613,
+      "lr": 0.00010125,
+      "embedding_lr": 2.025e-05,
+      "embedding_trainable": false
+    },
+    {
+      "epoch": 3,
+      "train_loss": 0.5598958157482046,
+      "validation_loss": 0.5210715027002866,
+      "validation_accuracy": 0.7996091668147095,
+      "validation_f1": 0.7973409989220265,
+      "lr": 0.000125625,
+      "embedding_lr": 2.5125e-05,
+      "embedding_trainable": false
+    },
+    {
+      "epoch": 4,
+      "train_loss": 0.520790623526464,
+      "validation_loss": 0.5530223844264832,
+      "validation_accuracy": 0.795700834961805,
+      "validation_f1": 0.786721068249258,
+      "lr": 0.00015,
+      "embedding_lr": 3e-05,
+      "embedding_trainable": false
+    },
+    {
+      "epoch": 5,
+      "train_loss": 0.5041719449288917,
+      "validation_loss": 0.5277832891996556,
+      "validation_accuracy": 0.7997868182625688,
+      "validation_f1": 0.8150336451665846,
+      "lr": 0.00014840165440159123,
+      "embedding_lr": 2.9680330880318252e-05,
+      "embedding_trainable": true
+    },
+    {
+      "epoch": 6,
+      "train_loss": 0.47614871564418365,
+      "validation_loss": 0.5006309036442771,
+      "validation_accuracy": 0.8028068928761769,
+      "validation_f1": 0.7967032967032966,
+      "lr": 0.0001436867653287792,
+      "embedding_lr": 2.8737353065755844e-05,
+      "embedding_trainable": true
+    },
+    {
+      "epoch": 7,
+      "train_loss": 0.4604943816882871,
+      "validation_loss": 0.4902491447429586,
+      "validation_accuracy": 0.8051163616983479,
+      "validation_f1": 0.7958310068862833,
+      "lr": 0.00013609175700733688,
+      "embedding_lr": 2.7218351401467382e-05,
+      "embedding_trainable": true
+    },
+    {
+      "epoch": 8,
+      "train_loss": 0.4471366376605722,
+      "validation_loss": 0.4818284792806056,
+      "validation_accuracy": 0.8090246935512524,
+      "validation_f1": 0.8083437332857907,
+      "lr": 0.00012599747486849425,
+      "embedding_lr": 2.5199494973698856e-05,
+      "embedding_trainable": true
+    },
+    {
+      "epoch": 9,
+      "train_loss": 0.4413254128204416,
+      "validation_loss": 0.512902381439619,
+      "validation_accuracy": 0.8036951501154734,
+      "validation_f1": 0.7909967845659164,
+      "lr": 0.00011391008836874433,
+      "embedding_lr": 2.2782017673748868e-05,
+      "embedding_trainable": true
+    },
+    {
+      "epoch": 10,
+      "train_loss": 0.42943319330478696,
+      "validation_loss": 0.5386451329658035,
+      "validation_accuracy": 0.7877065198081364,
+      "validation_f1": 0.7586346192688347,
+      "lr": 0.00010043570953971504,
+      "embedding_lr": 2.008714190794301e-05,
+      "embedding_trainable": true
+    },
+    {
+      "epoch": 11,
+      "train_loss": 0.4238192166360763,
+      "validation_loss": 0.5469862987716025,
+      "validation_accuracy": 0.7948125777225085,
+      "validation_f1": 0.772503446917471,
+      "lr": 8.624999999999998e-05,
+      "embedding_lr": 1.725e-05,
+      "embedding_trainable": true
+    }
+  ],
+  "checkpoint": "/home/bingxing2/home/scx9kyg/research/AI-homework/outputs/tuning/tune_birnn_num_layers_3_best.pt"
+}

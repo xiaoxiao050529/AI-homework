@@ -1,0 +1,81 @@
+{
+  "model_name": "tune_cnn_num_filters_160",
+  "best_epoch": 2,
+  "parameter_count": 2764392,
+  "train_seconds": 107.1050591468811,
+  "validation": {
+    "accuracy": 0.8404689998223486,
+    "precision": 0.8339148639218423,
+    "recall": 0.8499288762446657,
+    "f1": 0.8418457203240578,
+    "tp": 2390,
+    "tn": 2341,
+    "fp": 476,
+    "fn": 422,
+    "loss": 0.40454273982885824
+  },
+  "test": {
+    "accuracy": 0.8482384823848238,
+    "precision": 0.8700564971751412,
+    "recall": 0.8235294117647058,
+    "f1": 0.8461538461538461,
+    "tp": 154,
+    "tn": 159,
+    "fp": 23,
+    "fn": 33,
+    "loss": 0.3382093078156474
+  },
+  "history": [
+    {
+      "epoch": 1,
+      "train_loss": 0.5750482903443428,
+      "validation_loss": 0.39440117866134405,
+      "validation_accuracy": 0.8294546100550719,
+      "validation_f1": 0.829726853494147,
+      "lr": 0.001,
+      "embedding_lr": 0.001,
+      "embedding_trainable": true
+    },
+    {
+      "epoch": 2,
+      "train_loss": 0.23724198342710867,
+      "validation_loss": 0.40454273982885824,
+      "validation_accuracy": 0.8404689998223486,
+      "validation_f1": 0.8418457203240578,
+      "lr": 0.001,
+      "embedding_lr": 0.001,
+      "embedding_trainable": true
+    },
+    {
+      "epoch": 3,
+      "train_loss": 0.15615500282473488,
+      "validation_loss": 0.43878935083421305,
+      "validation_accuracy": 0.8315864274293836,
+      "validation_f1": 0.822138836772983,
+      "lr": 0.001,
+      "embedding_lr": 0.001,
+      "embedding_trainable": true
+    },
+    {
+      "epoch": 4,
+      "train_loss": 0.10420336695772635,
+      "validation_loss": 0.4627161668744259,
+      "validation_accuracy": 0.8362053650737253,
+      "validation_f1": 0.8358846564613741,
+      "lr": 0.0005,
+      "embedding_lr": 0.0005,
+      "embedding_trainable": true
+    },
+    {
+      "epoch": 5,
+      "train_loss": 0.0664844738148322,
+      "validation_loss": 0.48690159621766455,
+      "validation_accuracy": 0.8351394563865695,
+      "validation_f1": 0.8336917562724014,
+      "lr": 0.0005,
+      "embedding_lr": 0.0005,
+      "embedding_trainable": true
+    }
+  ],
+  "checkpoint": "/home/bingxing2/home/scx9kyg/research/AI-homework/outputs/tuning/tune_cnn_num_filters_160_best.pt"
+}

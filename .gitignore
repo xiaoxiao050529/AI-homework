@@ -3,11 +3,17 @@ __pycache__/
 *.pyc
 
 outputs/*.pt
+outputs/**/*.pt
 outputs/cache/
+outputs/tmux/
+outputs/recheck_current_main/
+outputs/full_tuning_pipeline.log
+outputs/tuning_mlp.log
 
-external_data/jieba.cache
+data/external/jieba.cache
 
 学号_姓名.pdf
+*.zip
 
 # Python virtual environment
 .venv/

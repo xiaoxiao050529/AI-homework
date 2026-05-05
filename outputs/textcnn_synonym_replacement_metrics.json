@@ -1,0 +1,81 @@
+{
+  "model_name": "textcnn_synonym_replacement",
+  "best_epoch": 3,
+  "parameter_count": 2744904,
+  "train_seconds": 94.13728141784668,
+  "validation": {
+    "accuracy": 0.8399360454787707,
+    "precision": 0.8356164383561644,
+    "recall": 0.8460170697012802,
+    "f1": 0.8407845909171231,
+    "tp": 2379,
+    "tn": 2349,
+    "fp": 468,
+    "fn": 433,
+    "loss": 0.4454388195762289
+  },
+  "test": {
+    "accuracy": 0.8346883468834688,
+    "precision": 0.8620689655172413,
+    "recall": 0.8021390374331551,
+    "f1": 0.8310249307479225,
+    "tp": 150,
+    "tn": 158,
+    "fp": 24,
+    "fn": 37,
+    "loss": 0.3854006691192224
+  },
+  "history": [
+    {
+      "epoch": 1,
+      "train_loss": 0.4982442171043224,
+      "validation_loss": 0.385431848854213,
+      "validation_accuracy": 0.8379818795523184,
+      "validation_f1": 0.8377801494130203,
+      "lr": 0.001,
+      "embedding_lr": 0.001,
+      "embedding_trainable": true
+    },
+    {
+      "epoch": 2,
+      "train_loss": 0.1876965989061136,
+      "validation_loss": 0.4127265830026424,
+      "validation_accuracy": 0.839580742583052,
+      "validation_f1": 0.8397515527950311,
+      "lr": 0.001,
+      "embedding_lr": 0.001,
+      "embedding_trainable": true
+    },
+    {
+      "epoch": 3,
+      "train_loss": 0.12533994999924045,
+      "validation_loss": 0.4454388195762289,
+      "validation_accuracy": 0.8399360454787707,
+      "validation_f1": 0.8407845909171231,
+      "lr": 0.001,
+      "embedding_lr": 0.001,
+      "embedding_trainable": true
+    },
+    {
+      "epoch": 4,
+      "train_loss": 0.08612750424924392,
+      "validation_loss": 0.4805199378632508,
+      "validation_accuracy": 0.8385148338958962,
+      "validation_f1": 0.83695067264574,
+      "lr": 0.001,
+      "embedding_lr": 0.001,
+      "embedding_trainable": true
+    },
+    {
+      "epoch": 5,
+      "train_loss": 0.06036248834434301,
+      "validation_loss": 0.5232545439505327,
+      "validation_accuracy": 0.8340735476994138,
+      "validation_f1": 0.83374866500534,
+      "lr": 0.0005,
+      "embedding_lr": 0.0005,
+      "embedding_trainable": true
+    }
+  ],
+  "checkpoint": "/home/bingxing2/home/scx9kyg/research/AI-homework/outputs/textcnn_synonym_replacement_best.pt"
+}

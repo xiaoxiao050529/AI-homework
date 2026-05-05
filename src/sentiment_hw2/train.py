@@ -177,6 +177,7 @@ def train_single_model(
     start_time = time.time()
 
     for epoch in range(1, config.epochs + 1):
+        epoch_start_time = time.time()
         embedding_trainable = epoch > config.freeze_embedding_epochs
         if hasattr(model, "embedding"):
             for parameter in model.embedding.parameters():
@@ -215,6 +216,7 @@ def train_single_model(
 
         epoch_record = {
             "epoch": epoch,
+            "epoch_seconds": time.time() - epoch_start_time,
             "train_loss": train_loss,
             "validation_loss": validation_metrics["loss"],
             "validation_accuracy": validation_metrics["accuracy"],
@@ -259,6 +261,8 @@ def train_single_model(
         "best_epoch": best_epoch,
         "parameter_count": count_parameters(model),
         "train_seconds": duration,
+        "epochs_ran": len(history),
+        "seconds_per_epoch": duration / float(max(len(history), 1)),
         "validation": validation_metrics,
         "test": test_metrics,
         "history": history,

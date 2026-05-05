@@ -1,0 +1,71 @@
+{
+  "model_name": "tune_cnn_seed_21",
+  "best_epoch": 1,
+  "parameter_count": 2744904,
+  "train_seconds": 74.86483240127563,
+  "validation": {
+    "accuracy": 0.8234144608278557,
+    "precision": 0.8315098468271335,
+    "recall": 0.8108108108108109,
+    "f1": 0.8210298883687432,
+    "tp": 2280,
+    "tn": 2355,
+    "fp": 462,
+    "fn": 532,
+    "loss": 0.5719075602776925
+  },
+  "test": {
+    "accuracy": 0.8184281842818428,
+    "precision": 0.8658536585365854,
+    "recall": 0.7593582887700535,
+    "f1": 0.809116809116809,
+    "tp": 142,
+    "tn": 160,
+    "fp": 22,
+    "fn": 45,
+    "loss": 0.4580511443498658
+  },
+  "history": [
+    {
+      "epoch": 1,
+      "train_loss": 0.16907199340710308,
+      "validation_loss": 0.5719075602776925,
+      "validation_accuracy": 0.8234144608278557,
+      "validation_f1": 0.8210298883687432,
+      "lr": 0.001,
+      "embedding_lr": 0.001,
+      "embedding_trainable": true
+    },
+    {
+      "epoch": 2,
+      "train_loss": 0.047633944335046655,
+      "validation_loss": 0.661040243913573,
+      "validation_accuracy": 0.8184402202877954,
+      "validation_f1": 0.8207017543859649,
+      "lr": 0.001,
+      "embedding_lr": 0.001,
+      "embedding_trainable": true
+    },
+    {
+      "epoch": 3,
+      "train_loss": 0.02925085589153306,
+      "validation_loss": 0.7282366654465858,
+      "validation_accuracy": 0.817019008704921,
+      "validation_f1": 0.8165954415954415,
+      "lr": 0.0005,
+      "embedding_lr": 0.0005,
+      "embedding_trainable": true
+    },
+    {
+      "epoch": 4,
+      "train_loss": 0.01624569275973141,
+      "validation_loss": 0.7798731853958133,
+      "validation_accuracy": 0.8166637058092023,
+      "validation_f1": 0.8187565858798735,
+      "lr": 0.0005,
+      "embedding_lr": 0.0005,
+      "embedding_trainable": true
+    }
+  ],
+  "checkpoint": "/home/bingxing2/home/scx9kyg/research/AI-homework/outputs/tuning/tune_cnn_seed_21_best.pt"
+}

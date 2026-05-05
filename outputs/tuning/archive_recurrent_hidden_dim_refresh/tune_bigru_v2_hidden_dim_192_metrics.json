@@ -1,0 +1,81 @@
+{
+  "model_name": "tune_bigru_v2_hidden_dim_192",
+  "best_epoch": 1,
+  "parameter_count": 2948808,
+  "train_seconds": 693.9363744258881,
+  "validation": {
+    "accuracy": 0.7997868182625688,
+    "precision": 0.7577240746405629,
+    "recall": 0.8808677098150782,
+    "f1": 0.8146686400263115,
+    "tp": 2477,
+    "tn": 2025,
+    "fp": 792,
+    "fn": 335,
+    "loss": 0.43998200501826373
+  },
+  "test": {
+    "accuracy": 0.8021680216802168,
+    "precision": 0.7794117647058824,
+    "recall": 0.8502673796791443,
+    "f1": 0.8132992327365729,
+    "tp": 159,
+    "tn": 137,
+    "fp": 45,
+    "fn": 28,
+    "loss": 0.40305134710580676
+  },
+  "history": [
+    {
+      "epoch": 1,
+      "train_loss": 0.4902212050559819,
+      "validation_loss": 0.43998200501826373,
+      "validation_accuracy": 0.7997868182625688,
+      "validation_f1": 0.8146686400263115,
+      "lr": 0.0002025,
+      "embedding_lr": 5.4000000000000005e-05,
+      "embedding_trainable": false
+    },
+    {
+      "epoch": 2,
+      "train_loss": 0.393584902709288,
+      "validation_loss": 0.4215992509069272,
+      "validation_accuracy": 0.8111565109255641,
+      "validation_f1": 0.8014939309056957,
+      "lr": 0.0003,
+      "embedding_lr": 8e-05,
+      "embedding_trainable": false
+    },
+    {
+      "epoch": 3,
+      "train_loss": 0.3786078895976727,
+      "validation_loss": 0.4233331720058989,
+      "validation_accuracy": 0.805826967489785,
+      "validation_f1": 0.7916110581506197,
+      "lr": 0.00029591109915468814,
+      "embedding_lr": 7.890962644125019e-05,
+      "embedding_trainable": true
+    },
+    {
+      "epoch": 4,
+      "train_loss": 0.3569006893721589,
+      "validation_loss": 0.40529308354140897,
+      "validation_accuracy": 0.8180849173920768,
+      "validation_f1": 0.8115568641884432,
+      "lr": 0.0002839230484541327,
+      "embedding_lr": 7.571281292110205e-05,
+      "embedding_trainable": true
+    },
+    {
+      "epoch": 5,
+      "train_loss": 0.3421919398581294,
+      "validation_loss": 0.40153164006630676,
+      "validation_accuracy": 0.8202167347663883,
+      "validation_f1": 0.8134218289085545,
+      "lr": 0.0002648528137423857,
+      "embedding_lr": 7.062741699796952e-05,
+      "embedding_trainable": true
+    }
+  ],
+  "checkpoint": "/home/bingxing2/home/scx9kyg/research/AI-homework/outputs/tuning/tune_bigru_v2_hidden_dim_192_best.pt"
+}

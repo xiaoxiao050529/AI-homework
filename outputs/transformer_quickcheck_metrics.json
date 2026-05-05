@@ -1,0 +1,41 @@
+{
+  "model_name": "transformer_quickcheck",
+  "best_epoch": 1,
+  "parameter_count": 144898,
+  "train_seconds": 134.62830710411072,
+  "validation": {
+    "accuracy": 0.7372535086160952,
+    "precision": 0.785438972162741,
+    "recall": 0.6522048364153628,
+    "f1": 0.7126481445502235,
+    "tp": 1834,
+    "tn": 2316,
+    "fp": 501,
+    "fn": 978,
+    "loss": 0.5216565062942969
+  },
+  "test": {
+    "accuracy": 0.7208672086720868,
+    "precision": 0.8043478260869565,
+    "recall": 0.5935828877005348,
+    "f1": 0.683076923076923,
+    "tp": 111,
+    "tn": 155,
+    "fp": 27,
+    "fn": 76,
+    "loss": 0.5405604522725754
+  },
+  "history": [
+    {
+      "epoch": 1,
+      "train_loss": 0.6785743877713425,
+      "validation_loss": 0.5216565062942969,
+      "validation_accuracy": 0.7372535086160952,
+      "validation_f1": 0.7126481445502235,
+      "lr": 0.0005400000000000001,
+      "embedding_lr": 5.4000000000000005e-05,
+      "embedding_trainable": false
+    }
+  ],
+  "checkpoint": "/home/bingxing2/home/scx9kyg/research/AI-homework/outputs/transformer_quickcheck_best.pt"
+}

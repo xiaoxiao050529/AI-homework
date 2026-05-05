@@ -43,14 +43,14 @@ def draw_box(
     draw.rounded_rectangle(rect, radius=28, fill=fill, outline=border, width=4)
     draw.line((x0 + 18, y0 + 58, x1 - 18, y0 + 58), fill=border, width=2)
 
-    title_font = resolve_diagram_font(30)
-    body_font = resolve_diagram_font(22)
+    title_font = resolve_diagram_font(28)
+    body_font = resolve_diagram_font(18)
     draw_centered_text(draw, (x0 + x1) // 2, y0 + 28, title, title_font, "#1F2937")
 
-    current_y = y0 + 84
+    current_y = y0 + 82
     for line in lines:
         draw_centered_text(draw, (x0 + x1) // 2, current_y, line, body_font, "#374151")
-        current_y += 34
+        current_y += 24
 
 
 def draw_arrow(
@@ -104,13 +104,13 @@ def init_canvas(size: Tuple[int, int], title: str, subtitle: str) -> Tuple[PILIm
 
 
 def save_mlp_diagram(path: Path) -> None:
-    image, draw = init_canvas((1600, 500), "MLP Baseline", "Mean pooling sentence representation + shallow classifier")
+    image, draw = init_canvas((1600, 520), "MLP Baseline", "Mean pooling sentence representation + shallow classifier")
     boxes = [
-        ((60, 165, 300, 355), "Input", ["Tokenized review", "length <= 80"], "#FDE68A"),
-        ((350, 165, 610, 355), "Embedding", ["80 x 50", "pretrained, trainable"], "#C7E9B4"),
-        ((660, 165, 970, 355), "Masked Mean Pooling", ["ignore PAD", "80 x 50 -> 50"], "#BFDBFE"),
-        ((1020, 145, 1335, 375), "Classifier Block", ["Dropout(0.3)", "Linear 50 -> 128", "ReLU + Dropout", "Linear 128 -> 2"], "#FBCFE8"),
-        ((1385, 165, 1540, 355), "Output", ["2 logits", "pos / neg"], "#DDD6FE"),
+        ((60, 165, 300, 355), "Input", ["Tokenized review", "length <= 80", "输入分词序列"], "#FDE68A"),
+        ((350, 165, 610, 355), "Embedding", ["80 x 50", "pretrained, trainable", "映射为稠密词向量"], "#C7E9B4"),
+        ((660, 165, 970, 355), "Masked Mean Pooling", ["ignore PAD", "80 x 50 -> 50", "聚合全局句子语义"], "#BFDBFE"),
+        ((1020, 145, 1335, 375), "Classifier Block", ["Dropout(0.3)", "Linear 50 -> 128", "ReLU + Dropout", "做非线性特征变换", "Linear 128 -> 2"], "#FBCFE8"),
+        ((1385, 165, 1540, 355), "Output", ["2 logits", "pos / neg", "输出情感类别分数"], "#DDD6FE"),
     ]
     for rect, title, lines, fill in boxes:
         draw_box(draw, rect, title, lines, fill)
@@ -122,31 +122,31 @@ def save_mlp_diagram(path: Path) -> None:
 
     note_font = resolve_diagram_font(21)
     note = "Key idea: average all valid token embeddings, then classify the sentence vector."
-    draw_centered_text(draw, 800, 440, note, note_font, "#7C6750")
+    draw_centered_text(draw, 800, 458, note, note_font, "#7C6750")
     path.parent.mkdir(parents=True, exist_ok=True)
     image.save(path)
 
 
 def save_cnn_diagram(path: Path) -> None:
-    image, draw = init_canvas((1600, 720), "TextCNN", "Parallel convolution kernels capture local n-gram sentiment patterns")
-    draw_box(draw, (60, 250, 280, 440), "Input", ["Tokenized review", "length <= 80"], "#FDE68A")
-    draw_box(draw, (340, 250, 590, 440), "Embedding", ["80 x 50", "pretrained, trainable"], "#C7E9B4")
+    image, draw = init_canvas((1600, 760), "TextCNN", "Parallel convolution kernels capture local n-gram sentiment patterns")
+    draw_box(draw, (60, 250, 280, 440), "Input", ["Tokenized review", "length <= 80", "输入分词序列"], "#FDE68A")
+    draw_box(draw, (340, 250, 590, 440), "Embedding", ["80 x 50", "pretrained, trainable", "生成词向量表示"], "#C7E9B4")
 
     conv_boxes = [
-        ((690, 100, 980, 250), "Conv Branch 1", ["kernel = 3", "128 filters", "ReLU"], "#BFDBFE"),
-        ((690, 285, 980, 435), "Conv Branch 2", ["kernel = 4", "128 filters", "ReLU"], "#BFDBFE"),
-        ((690, 470, 980, 620), "Conv Branch 3", ["kernel = 5", "128 filters", "ReLU"], "#BFDBFE"),
+        ((690, 100, 980, 250), "Conv Branch 1", ["kernel = 3", "128 filters", "提取 3-gram 局部模式"], "#BFDBFE"),
+        ((690, 285, 980, 435), "Conv Branch 2", ["kernel = 4", "128 filters", "提取 4-gram 局部模式"], "#BFDBFE"),
+        ((690, 470, 980, 620), "Conv Branch 3", ["kernel = 5", "128 filters", "提取 5-gram 局部模式"], "#BFDBFE"),
     ]
     pool_boxes = [
-        ((1060, 100, 1290, 250), "Max Pool", ["time-wise max", "128-d"], "#FCD5CE"),
-        ((1060, 285, 1290, 435), "Max Pool", ["time-wise max", "128-d"], "#FCD5CE"),
-        ((1060, 470, 1290, 620), "Max Pool", ["time-wise max", "128-d"], "#FCD5CE"),
+        ((1060, 100, 1290, 250), "Max Pool", ["time-wise max", "128-d", "保留最强局部响应"], "#FCD5CE"),
+        ((1060, 285, 1290, 435), "Max Pool", ["time-wise max", "128-d", "保留最强局部响应"], "#FCD5CE"),
+        ((1060, 470, 1290, 620), "Max Pool", ["time-wise max", "128-d", "保留最强局部响应"], "#FCD5CE"),
     ]
     for rect, title, lines, fill in conv_boxes + pool_boxes:
         draw_box(draw, rect, title, lines, fill)
 
-    draw_box(draw, (1360, 205, 1540, 355), "Concat", ["128 x 3", "384-d"], "#DDD6FE")
-    draw_box(draw, (1360, 410, 1540, 560), "Classifier", ["Dropout(0.5)", "Linear 384 -> 2"], "#FBCFE8")
+    draw_box(draw, (1360, 205, 1540, 355), "Concat", ["128 x 3", "384-d", "融合多尺度特征"], "#DDD6FE")
+    draw_box(draw, (1360, 410, 1540, 560), "Classifier", ["Dropout(0.5)", "Linear 384 -> 2", "输出二分类 logits"], "#FBCFE8")
 
     draw_arrow(draw, (280, 345), (340, 345), label="lookup")
     draw_arrow(draw, (590, 345), (650, 345))
@@ -170,44 +170,72 @@ def save_cnn_diagram(path: Path) -> None:
 
     note_font = resolve_diagram_font(21)
     note = "Key idea: use multiple kernel sizes in parallel, keep the strongest local evidence from each filter."
-    draw_centered_text(draw, 800, 670, note, note_font, "#7C6750")
+    draw_centered_text(draw, 800, 705, note, note_font, "#7C6750")
     path.parent.mkdir(parents=True, exist_ok=True)
     image.save(path)
 
 
 def save_bigru_diagram(path: Path) -> None:
-    image, draw = init_canvas((1600, 560), "BiGRU", "Bidirectional sequence encoder with forward and backward context")
+    image, draw = init_canvas((1600, 600), "BiGRU", "Bidirectional sequence encoder with forward and backward context")
     boxes = [
-        ((60, 195, 285, 385), "Input", ["Tokenized review", "length <= 80"], "#FDE68A"),
-        ((340, 195, 600, 385), "Embedding", ["80 x 50", "pretrained, trainable"], "#C7E9B4"),
-        ((655, 195, 920, 385), "Packed Sequence", ["use true lengths", "skip PAD in GRU"], "#BFDBFE"),
-        ((975, 175, 1250, 405), "Bidirectional GRU", ["hidden = 128", "forward + backward", "final states only"], "#FCD5CE"),
-        ((1305, 175, 1540, 405), "Classifier", ["concat -> 256-d", "Dropout(0.3)", "Linear 256 -> 2"], "#DDD6FE"),
+        ((60, 195, 285, 385), "Input", ["Tokenized review", "length <= 80", "输入分词序列"], "#FDE68A"),
+        ((340, 195, 600, 385), "Embedding", ["80 x 50", "pretrained, trainable", "映射为上下文输入"], "#C7E9B4"),
+        ((655, 195, 920, 385), "Length Mask", ["use true lengths", "skip PAD updates", "只更新有效位置"], "#BFDBFE"),
+        ((975, 175, 1250, 405), "Bidirectional GRU", ["hidden = 128", "forward + backward", "双向建模上下文依赖", "保留最终状态"], "#FCD5CE"),
+        ((1305, 175, 1540, 405), "Classifier", ["concat -> 256-d", "Dropout(0.3)", "Linear 256 -> 2", "输出情感类别分数"], "#DDD6FE"),
     ]
     for rect, title, lines, fill in boxes:
         draw_box(draw, rect, title, lines, fill)
 
     draw_arrow(draw, (285, 290), (340, 290), label="lookup")
     draw_arrow(draw, (600, 290), (655, 290))
-    draw_arrow(draw, (920, 290), (975, 290), label="pack")
+    draw_arrow(draw, (920, 290), (975, 290), label="mask")
     draw_arrow(draw, (1250, 290), (1305, 290), label="h_f ⊕ h_b")
 
     note_font = resolve_diagram_font(21)
     note = "Key idea: encode context from both directions and concatenate the last forward/backward hidden states."
-    draw_centered_text(draw, 800, 500, note, note_font, "#7C6750")
+    draw_centered_text(draw, 800, 535, note, note_font, "#7C6750")
+    path.parent.mkdir(parents=True, exist_ok=True)
+    image.save(path)
+
+
+def save_transformer_diagram(path: Path) -> None:
+    image, draw = init_canvas((1600, 760), "Transformer Encoder", "Self-attention encoder for sentence-level sentiment classification")
+    boxes = [
+        ((60, 255, 280, 445), "Input", ["Tokenized review", "length <= 80", "输入分词序列"], "#FDE68A"),
+        ((335, 255, 575, 445), "Embedding", ["80 x 50", "pretrained, trainable", "生成词向量表示"], "#C7E9B4"),
+        ((635, 175, 955, 525), "Input Builder", ["Linear 50 -> 128", "[CLS] token", "absolute positions", "LayerNorm", "构造编码器输入"], "#BFDBFE"),
+        ((1015, 145, 1315, 555), "Transformer Encoder", ["1 layer, 4 heads", "scaled dot-product attn", "FFN 128 -> 256 -> 128", "residual + LayerNorm", "mask PAD tokens"], "#FCD5CE"),
+        ((1370, 180, 1545, 365), "Pooling", ["take [CLS]", "or masked mean", "得到句级表示"], "#DDD6FE"),
+        ((1370, 430, 1545, 615), "Classifier", ["Dropout(0.1)", "Linear 128 -> 2", "输出二分类 logits"], "#FBCFE8"),
+    ]
+    for rect, title, lines, fill in boxes:
+        draw_box(draw, rect, title, lines, fill)
+
+    draw_arrow(draw, (280, 350), (335, 350), label="lookup")
+    draw_arrow(draw, (575, 350), (635, 350), label="project")
+    draw_arrow(draw, (955, 350), (1015, 350), label="+pos")
+    draw_arrow(draw, (1315, 350), (1370, 270), label="[CLS]")
+    draw_arrow(draw, (1457, 365), (1457, 430))
+
+    note_font = resolve_diagram_font(21)
+    note = "Key idea: let every token attend to all other valid tokens, then use the [CLS] representation for classification."
+    draw_centered_text(draw, 800, 705, note, note_font, "#7C6750")
     path.parent.mkdir(parents=True, exist_ok=True)
     image.save(path)
 
 
 def ensure_diagram_assets(asset_dir: Path) -> Dict[str, Path]:
-    """确保报告所需的三张结构图位图存在。"""
+    """确保报告所需的结构图位图存在。"""
     asset_dir.mkdir(parents=True, exist_ok=True)
     paths = {
         "mlp": asset_dir / "mlp_architecture.png",
         "cnn": asset_dir / "textcnn_architecture.png",
         "bigru": asset_dir / "bigru_architecture.png",
+        "transformer": asset_dir / "transformer_architecture.png",
     }
     save_mlp_diagram(paths["mlp"])
     save_cnn_diagram(paths["cnn"])
     save_bigru_diagram(paths["bigru"])
+    save_transformer_diagram(paths["transformer"])
     return paths

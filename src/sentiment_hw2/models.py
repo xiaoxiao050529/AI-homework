@@ -5,9 +5,17 @@ from typing import Sequence, Tuple, Union
 import torch
 import torch.nn.functional as F
 from torch import nn
+from torch.nn.utils.rnn import pack_padded_sequence, pad_packed_sequence
 
 
 RecurrentState = Union[torch.Tensor, Tuple[torch.Tensor, torch.Tensor]]
+
+
+def _trainable_embedding(embedding_matrix: torch.Tensor) -> nn.Embedding:
+    """为每个模型创建独立词向量副本，避免多次实验共享可训练权重。"""
+    return nn.Embedding.from_pretrained(
+        embedding_matrix.detach().clone(), freeze=False, padding_idx=0
+    )
 
 
 class MeanPoolMLP(nn.Module):
@@ -15,9 +23,7 @@ class MeanPoolMLP(nn.Module):
 
     def __init__(self, embedding_matrix: torch.Tensor, hidden_dim: int = 128, dropout: float = 0.3):
         super().__init__()
-        self.embedding = nn.Embedding.from_pretrained(
-            embedding_matrix, freeze=False, padding_idx=0
-        )
+        self.embedding = _trainable_embedding(embedding_matrix)
         embedding_dim = embedding_matrix.size(1)
         self.dropout = nn.Dropout(dropout)
         self.classifier = nn.Sequential(
@@ -49,9 +55,7 @@ class TextCNN(nn.Module):
         dropout: float = 0.5,
     ):
         super().__init__()
-        self.embedding = nn.Embedding.from_pretrained(
-            embedding_matrix, freeze=False, padding_idx=0
-        )
+        self.embedding = _trainable_embedding(embedding_matrix)
         embedding_dim = embedding_matrix.size(1)
         self.convs = nn.ModuleList(
             [nn.Conv2d(1, num_filters, (kernel_size, embedding_dim)) for kernel_size in filter_sizes]
@@ -68,6 +72,75 @@ class TextCNN(nn.Module):
         pooled = [torch.max(item, dim=2).values for item in conved]
         features = torch.cat(pooled, dim=1)
         return self.fc(self.dropout(features))
+
+
+class TransformerEncoderClassifier(nn.Module):
+    """基于 Transformer Encoder 的文本分类器。"""
+
+    def __init__(
+        self,
+        embedding_matrix: torch.Tensor,
+        model_dim: int = 128,
+        num_heads: int = 4,
+        num_layers: int = 2,
+        ff_dim: int = 256,
+        dropout: float = 0.2,
+        max_len: int = 80,
+        pooling: str = "cls",
+    ):
+        super().__init__()
+        if pooling not in {"cls", "mean"}:
+            raise ValueError("pooling must be 'cls' or 'mean'")
+        self.embedding = _trainable_embedding(embedding_matrix)
+        embedding_dim = embedding_matrix.size(1)
+        self.input_proj = nn.Linear(embedding_dim, model_dim)
+        self.position_embedding = nn.Embedding(max_len + 1, model_dim)
+        self.cls_token = nn.Parameter(torch.zeros(1, 1, model_dim))
+        self.input_norm = nn.LayerNorm(model_dim)
+        encoder_layer = nn.TransformerEncoderLayer(
+            d_model=model_dim,
+            nhead=num_heads,
+            dim_feedforward=ff_dim,
+            dropout=dropout,
+            activation="gelu",
+            batch_first=True,
+            norm_first=True,
+        )
+        self.encoder = nn.TransformerEncoder(
+            encoder_layer,
+            num_layers=num_layers,
+            enable_nested_tensor=False,
+        )
+        self.dropout = nn.Dropout(dropout)
+        self.fc = nn.Linear(model_dim, 2)
+        self.max_len = max_len
+        self.pooling = pooling
+
+    def forward(self, inputs: torch.Tensor, lengths: torch.Tensor) -> torch.Tensor:
+        """对序列做自注意力编码，再对有效 token 表示做均值池化。"""
+        batch_size, seq_len = inputs.size()
+        seq_len = min(seq_len, self.max_len)
+        effective_lengths = lengths.clamp(min=1, max=seq_len)
+        embedded = self.embedding(inputs[:, :seq_len])
+
+        positions = torch.arange(seq_len + 1, device=inputs.device).unsqueeze(0).expand(batch_size, seq_len + 1)
+        token_hidden = self.input_proj(embedded)
+        cls_hidden = self.cls_token.expand(batch_size, -1, -1)
+        hidden = torch.cat([cls_hidden, token_hidden], dim=1) + self.position_embedding(positions)
+        hidden = self.input_norm(hidden)
+
+        token_mask = torch.arange(seq_len, device=inputs.device).unsqueeze(0).expand(batch_size, seq_len) >= effective_lengths.unsqueeze(1)
+        cls_mask = torch.zeros(batch_size, 1, dtype=torch.bool, device=inputs.device)
+        padding_mask = torch.cat([cls_mask, token_mask], dim=1)
+        encoded = self.encoder(hidden, src_key_padding_mask=padding_mask)
+
+        if self.pooling == "cls":
+            pooled = encoded[:, 0, :]
+        else:
+            token_encoded = encoded[:, 1:, :]
+            valid_mask = (~token_mask).unsqueeze(-1).float()
+            pooled = (token_encoded * valid_mask).sum(dim=1) / effective_lengths.unsqueeze(1).float()
+        return self.fc(self.dropout(pooled))
 
 
 class ManualRNNCell(nn.Module):
@@ -275,9 +348,7 @@ class BiGRUClassifier(nn.Module):
         dropout: float = 0.3,
     ):
         super().__init__()
-        self.embedding = nn.Embedding.from_pretrained(
-            embedding_matrix, freeze=False, padding_idx=0
-        )
+        self.embedding = _trainable_embedding(embedding_matrix)
         embedding_dim = embedding_matrix.size(1)
         self.gru = ManualBidirectionalRecurrentEncoder(
             input_size=embedding_dim,
@@ -310,9 +381,7 @@ class BiRNNClassifier(nn.Module):
         dropout: float = 0.3,
     ):
         super().__init__()
-        self.embedding = nn.Embedding.from_pretrained(
-            embedding_matrix, freeze=False, padding_idx=0
-        )
+        self.embedding = _trainable_embedding(embedding_matrix)
         embedding_dim = embedding_matrix.size(1)
         self.rnn = ManualBidirectionalRecurrentEncoder(
             input_size=embedding_dim,
@@ -346,9 +415,7 @@ class BiLSTMClassifier(nn.Module):
         dropout: float = 0.3,
     ):
         super().__init__()
-        self.embedding = nn.Embedding.from_pretrained(
-            embedding_matrix, freeze=False, padding_idx=0
-        )
+        self.embedding = _trainable_embedding(embedding_matrix)
         embedding_dim = embedding_matrix.size(1)
         self.lstm = ManualBidirectionalRecurrentEncoder(
             input_size=embedding_dim,
@@ -402,16 +469,15 @@ class BiLSTMAttentionClassifier(nn.Module):
         attention_dim: int = 128,
     ):
         super().__init__()
-        self.embedding = nn.Embedding.from_pretrained(
-            embedding_matrix, freeze=False, padding_idx=0
-        )
+        self.embedding = _trainable_embedding(embedding_matrix)
         embedding_dim = embedding_matrix.size(1)
-        self.lstm = ManualBidirectionalRecurrentEncoder(
+        self.lstm = nn.LSTM(
             input_size=embedding_dim,
             hidden_size=hidden_dim,
             num_layers=num_layers,
-            dropout=dropout,
-            cell_type="lstm",
+            batch_first=True,
+            bidirectional=True,
+            dropout=dropout if num_layers > 1 else 0.0,
         )
         self.attention = AdditiveAttention(hidden_dim * 2, attention_dim)
         self.dropout = nn.Dropout(dropout)
@@ -420,7 +486,18 @@ class BiLSTMAttentionClassifier(nn.Module):
     def forward(self, inputs: torch.Tensor, lengths: torch.Tensor) -> torch.Tensor:
         """让模型从整条序列中学习更重要的情感触发词。"""
         embedded = self.embedding(inputs)
-        sequence_outputs, _ = self.lstm(embedded, lengths)
+        packed = pack_padded_sequence(
+            embedded,
+            lengths.clamp(min=1).cpu(),
+            batch_first=True,
+            enforce_sorted=False,
+        )
+        packed_outputs, _ = self.lstm(packed)
+        sequence_outputs, _ = pad_packed_sequence(
+            packed_outputs,
+            batch_first=True,
+            total_length=inputs.size(1),
+        )
         context, _ = self.attention(sequence_outputs, lengths)
         return self.fc(self.dropout(context))
 
@@ -433,7 +510,11 @@ def initialize_model(model: nn.Module) -> None:
         # 预训练词向量已经有意义，不再用随机初始化覆盖。
         if "embedding" in name:
             continue
-        if "weight_hh" in name:
+        if (name.endswith("norm.weight") or ("norm" in name and name.endswith("weight"))):
+            nn.init.ones_(param)
+        elif (name.endswith("norm.bias") or ("norm" in name and name.endswith("bias"))):
+            nn.init.zeros_(param)
+        elif "weight_hh" in name:
             nn.init.orthogonal_(param)
         elif "weight_ih" in name:
             nn.init.xavier_uniform_(param)

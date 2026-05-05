@@ -1,0 +1,71 @@
+{
+  "model_name": "bilstm_attention",
+  "best_epoch": 2,
+  "parameter_count": 2884808,
+  "train_seconds": 425.4161808490753,
+  "validation": {
+    "accuracy": 0.7688754663350507,
+    "precision": 0.7342635658914729,
+    "recall": 0.8421052631578947,
+    "f1": 0.7844956104025178,
+    "tp": 2368,
+    "tn": 1960,
+    "fp": 857,
+    "fn": 444,
+    "loss": 0.4806834724555538
+  },
+  "test": {
+    "accuracy": 0.7967479674796748,
+    "precision": 0.7947368421052632,
+    "recall": 0.8074866310160428,
+    "f1": 0.8010610079575596,
+    "tp": 151,
+    "tn": 143,
+    "fp": 39,
+    "fn": 36,
+    "loss": 0.44761056774030855
+  },
+  "history": [
+    {
+      "epoch": 1,
+      "train_loss": 0.5687001858643144,
+      "validation_loss": 0.5140313460594342,
+      "validation_accuracy": 0.7452478237697637,
+      "validation_f1": 0.7741020793950851,
+      "lr": 0.0003,
+      "embedding_lr": 8e-05,
+      "embedding_trainable": false
+    },
+    {
+      "epoch": 2,
+      "train_loss": 0.5064156792237527,
+      "validation_loss": 0.4806834724555538,
+      "validation_accuracy": 0.7688754663350507,
+      "validation_f1": 0.7844956104025178,
+      "lr": 0.00027708203932499373,
+      "embedding_lr": 7.388854381999833e-05,
+      "embedding_trainable": true
+    },
+    {
+      "epoch": 3,
+      "train_loss": 0.4877308436138223,
+      "validation_loss": 0.47252275692694434,
+      "validation_accuracy": 0.7791792503108901,
+      "validation_f1": 0.7657810439042775,
+      "lr": 0.00021708203932499365,
+      "embedding_lr": 5.788854381999832e-05,
+      "embedding_trainable": true
+    },
+    {
+      "epoch": 4,
+      "train_loss": 0.47458510872053733,
+      "validation_loss": 0.45696110063811396,
+      "validation_accuracy": 0.7857523538816842,
+      "validation_f1": 0.7830154731917955,
+      "lr": 0.00014291796067500632,
+      "embedding_lr": 3.8111456180001686e-05,
+      "embedding_trainable": true
+    }
+  ],
+  "checkpoint": "/home/bingxing2/home/scx9kyg/research/AI-homework/outputs/bilstm_attention_best.pt"
+}

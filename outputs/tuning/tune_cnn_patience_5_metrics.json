@@ -1,0 +1,91 @@
+{
+  "model_name": "tune_cnn_patience_5",
+  "best_epoch": 1,
+  "parameter_count": 2744904,
+  "train_seconds": 111.57482576370239,
+  "validation": {
+    "accuracy": 0.8221709006928406,
+    "precision": 0.7963993453355156,
+    "recall": 0.8652204836415363,
+    "f1": 0.8293846940514743,
+    "tp": 2433,
+    "tn": 2195,
+    "fp": 622,
+    "fn": 379,
+    "loss": 0.5538443378835445
+  },
+  "test": {
+    "accuracy": 0.8265582655826558,
+    "precision": 0.8253968253968254,
+    "recall": 0.8342245989304813,
+    "f1": 0.8297872340425532,
+    "tp": 156,
+    "tn": 149,
+    "fp": 33,
+    "fn": 31,
+    "loss": 0.4265729256761753
+  },
+  "history": [
+    {
+      "epoch": 1,
+      "train_loss": 0.19027341697866146,
+      "validation_loss": 0.5538443378835445,
+      "validation_accuracy": 0.8221709006928406,
+      "validation_f1": 0.8293846940514743,
+      "lr": 0.001,
+      "embedding_lr": 0.001,
+      "embedding_trainable": true
+    },
+    {
+      "epoch": 2,
+      "train_loss": 0.05859740686677683,
+      "validation_loss": 0.6152424701875174,
+      "validation_accuracy": 0.8232368093799964,
+      "validation_f1": 0.824545935461118,
+      "lr": 0.001,
+      "embedding_lr": 0.001,
+      "embedding_trainable": true
+    },
+    {
+      "epoch": 3,
+      "train_loss": 0.03538976460233285,
+      "validation_loss": 0.6906939658332536,
+      "validation_accuracy": 0.8191508260792325,
+      "validation_f1": 0.8203318037416167,
+      "lr": 0.0005,
+      "embedding_lr": 0.0005,
+      "embedding_trainable": true
+    },
+    {
+      "epoch": 4,
+      "train_loss": 0.019675133302125662,
+      "validation_loss": 0.7330578474745189,
+      "validation_accuracy": 0.8171966601527803,
+      "validation_f1": 0.8209500609013398,
+      "lr": 0.0005,
+      "embedding_lr": 0.0005,
+      "embedding_trainable": true
+    },
+    {
+      "epoch": 5,
+      "train_loss": 0.015196541051120192,
+      "validation_loss": 0.7747373967213917,
+      "validation_accuracy": 0.8168413572570616,
+      "validation_f1": 0.8209136703143999,
+      "lr": 0.00025,
+      "embedding_lr": 0.00025,
+      "embedding_trainable": true
+    },
+    {
+      "epoch": 6,
+      "train_loss": 0.011178801037251565,
+      "validation_loss": 0.7942188544899389,
+      "validation_accuracy": 0.816486054361343,
+      "validation_f1": 0.819500262100297,
+      "lr": 0.00025,
+      "embedding_lr": 0.00025,
+      "embedding_trainable": true
+    }
+  ],
+  "checkpoint": "/home/bingxing2/home/scx9kyg/research/AI-homework/outputs/tuning/tune_cnn_patience_5_best.pt"
+}

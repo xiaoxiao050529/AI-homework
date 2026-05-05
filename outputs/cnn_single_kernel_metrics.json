@@ -1,0 +1,91 @@
+{
+  "model_name": "cnn_single_kernel",
+  "best_epoch": 6,
+  "parameter_count": 2686536,
+  "train_seconds": 37.02817153930664,
+  "validation": {
+    "accuracy": 0.820572037662107,
+    "precision": 0.8444189602446484,
+    "recall": 0.7855618776671408,
+    "f1": 0.8139277818717761,
+    "tp": 2209,
+    "tn": 2410,
+    "fp": 407,
+    "fn": 603,
+    "loss": 0.4044489915437863
+  },
+  "test": {
+    "accuracy": 0.8265582655826558,
+    "precision": 0.89171974522293,
+    "recall": 0.7486631016042781,
+    "f1": 0.813953488372093,
+    "tp": 140,
+    "tn": 165,
+    "fp": 17,
+    "fn": 47,
+    "loss": 0.3724942378154615
+  },
+  "history": [
+    {
+      "epoch": 1,
+      "train_loss": 0.8325089872187407,
+      "validation_loss": 0.5365422893891985,
+      "validation_accuracy": 0.7408065375732812,
+      "validation_f1": 0.7583236706973662,
+      "lr": 0.001,
+      "embedding_lr": 0.001,
+      "embedding_trainable": true
+    },
+    {
+      "epoch": 2,
+      "train_loss": 0.5413199344305101,
+      "validation_loss": 0.4884679513368117,
+      "validation_accuracy": 0.7660330431693019,
+      "validation_f1": 0.7480390281232064,
+      "lr": 0.001,
+      "embedding_lr": 0.001,
+      "embedding_trainable": true
+    },
+    {
+      "epoch": 3,
+      "train_loss": 0.44800415154945517,
+      "validation_loss": 0.44489641145313796,
+      "validation_accuracy": 0.7928584117960561,
+      "validation_f1": 0.7914878397711016,
+      "lr": 0.001,
+      "embedding_lr": 0.001,
+      "embedding_trainable": true
+    },
+    {
+      "epoch": 4,
+      "train_loss": 0.37551881013923744,
+      "validation_loss": 0.4228595611807253,
+      "validation_accuracy": 0.8083140877598153,
+      "validation_f1": 0.8032099215757796,
+      "lr": 0.001,
+      "embedding_lr": 0.001,
+      "embedding_trainable": true
+    },
+    {
+      "epoch": 5,
+      "train_loss": 0.3227667358278906,
+      "validation_loss": 0.41683432137930154,
+      "validation_accuracy": 0.8139989340913129,
+      "validation_f1": 0.8031584884376762,
+      "lr": 0.001,
+      "embedding_lr": 0.001,
+      "embedding_trainable": true
+    },
+    {
+      "epoch": 6,
+      "train_loss": 0.26590490545054796,
+      "validation_loss": 0.4044489915437863,
+      "validation_accuracy": 0.820572037662107,
+      "validation_f1": 0.8139277818717761,
+      "lr": 0.001,
+      "embedding_lr": 0.001,
+      "embedding_trainable": true
+    }
+  ],
+  "checkpoint": "/home/bingxing2/home/scx9kyg/research/AI-homework/outputs/cnn_single_kernel_best.pt"
+}

@@ -1,0 +1,91 @@
+{
+  "model_name": "textcnn_word_dropout",
+  "best_epoch": 6,
+  "parameter_count": 2744904,
+  "train_seconds": 108.96637058258057,
+  "validation": {
+    "accuracy": 0.8388701367916148,
+    "precision": 0.82386943216593,
+    "recall": 0.8616642958748222,
+    "f1": 0.8423431253259169,
+    "tp": 2423,
+    "tn": 2299,
+    "fp": 518,
+    "fn": 389,
+    "loss": 0.4325508904999241
+  },
+  "test": {
+    "accuracy": 0.8401084010840109,
+    "precision": 0.8555555555555555,
+    "recall": 0.8235294117647058,
+    "f1": 0.8392370572207085,
+    "tp": 154,
+    "tn": 156,
+    "fp": 26,
+    "fn": 33,
+    "loss": 0.36821236237277827
+  },
+  "history": [
+    {
+      "epoch": 1,
+      "train_loss": 0.7574081469987771,
+      "validation_loss": 0.42595009805677964,
+      "validation_accuracy": 0.8065375732812222,
+      "validation_f1": 0.8177405857740586,
+      "lr": 0.001,
+      "embedding_lr": 0.001,
+      "embedding_trainable": true
+    },
+    {
+      "epoch": 2,
+      "train_loss": 0.38747089043451866,
+      "validation_loss": 0.39450628798985105,
+      "validation_accuracy": 0.8234144608278557,
+      "validation_f1": 0.8223096174472649,
+      "lr": 0.001,
+      "embedding_lr": 0.001,
+      "embedding_trainable": true
+    },
+    {
+      "epoch": 3,
+      "train_loss": 0.285541741287533,
+      "validation_loss": 0.3910139581411256,
+      "validation_accuracy": 0.8308758216379464,
+      "validation_f1": 0.829512893982808,
+      "lr": 0.001,
+      "embedding_lr": 0.001,
+      "embedding_trainable": true
+    },
+    {
+      "epoch": 4,
+      "train_loss": 0.22688016514725562,
+      "validation_loss": 0.39606050956649497,
+      "validation_accuracy": 0.8331852904601172,
+      "validation_f1": 0.8334220329962747,
+      "lr": 0.001,
+      "embedding_lr": 0.001,
+      "embedding_trainable": true
+    },
+    {
+      "epoch": 5,
+      "train_loss": 0.1746213374519148,
+      "validation_loss": 0.4106200822273481,
+      "validation_accuracy": 0.8356724107301474,
+      "validation_f1": 0.832214765100671,
+      "lr": 0.001,
+      "embedding_lr": 0.001,
+      "embedding_trainable": true
+    },
+    {
+      "epoch": 6,
+      "train_loss": 0.13740936291403788,
+      "validation_loss": 0.4325508904999241,
+      "validation_accuracy": 0.8388701367916148,
+      "validation_f1": 0.8423431253259169,
+      "lr": 0.001,
+      "embedding_lr": 0.001,
+      "embedding_trainable": true
+    }
+  ],
+  "checkpoint": "/home/bingxing2/home/scx9kyg/research/AI-homework/outputs/textcnn_word_dropout_best.pt"
+}
