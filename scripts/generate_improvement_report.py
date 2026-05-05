@@ -1,6 +1,7 @@
 """根据 staged improvement 实验结果生成单独的分析报告。"""
 
 import csv
+from datetime import datetime
 import json
 from typing import Dict, List
 
@@ -136,6 +137,42 @@ def export_csv(experiments: List[Dict[str, object]]) -> None:
             )
 
 
+def summary_bullets(tracks: Dict[str, List[Dict[str, object]]]) -> List[str]:
+    rnn = sorted(tracks["rnn"], key=stage_sort_key)
+    cnn = sorted(tracks["cnn"], key=stage_sort_key)
+    rnn_bilstm = rnn[1]
+    rnn_attention = rnn[2]
+    cnn_multi = cnn[1]
+    cnn_augmentations = cnn[2:]
+    best_aug = max(cnn_augmentations, key=lambda item: item["test"]["f1"])
+    return [
+        "1. 在当前代码和数据上，`BiRNN -> BiLSTM` 是明确有效的升级，测试集 F1 提升约 `{:+.4f}`。".format(
+            rnn_bilstm["delta_vs_reference"]["test_f1"]
+        ),
+        "2. `BiLSTM + Attention` 这次没有跑赢 `BiLSTM`，但它属于新增结构且只做了 quick 预算，后续还有继续调参空间。",
+        "3. `单卷积核 CNN -> TextCNN 多卷积核` 的收益最稳定，测试集 F1 提升约 `{:+.4f}`，是本轮 CNN 路线里最值得保留到正式报告的结构改进。".format(
+            cnn_multi["delta_vs_reference"]["test_f1"]
+        ),
+        "4. 三种轻量增强里，`{}` 最稳，但在这次设置下仍未超过未增强 TextCNN；其测试集 F1 相比基线变动 `{:+.4f}`。".format(
+            best_aug["display_name"],
+            best_aug["delta_vs_reference"]["test_f1"],
+        ),
+    ]
+
+
+def build_report_note(experiments: List[Dict[str, object]]) -> str:
+    reused = [item for item in experiments if item.get("reused_existing_result")]
+    trained = [item for item in experiments if not item.get("reused_existing_result")]
+    if reused and trained:
+        reused_names = " / ".join(item["display_name"] for item in reused)
+        return "本轮结果同时包含复用与新增训练：`{}` 直接复用了已有结果，其余变体按当前汇总文件记录的训练预算生成。".format(
+            reused_names
+        )
+    if reused:
+        return "本轮结果全部复用了已有 `*_metrics.json`，本报告主要用于重新汇总与复核结论。"
+    return "本轮结果全部来自重新训练，没有复用旧的主实验指标文件。"
+
+
 def main() -> None:
     if not SUMMARY_PATH.exists():
         raise FileNotFoundError("缺少改进实验汇总，请先运行 run_improvement_experiments.py")
@@ -149,11 +186,11 @@ def main() -> None:
     lines = [
         "# CNN / RNN 改进实验分析报告",
         "",
-        "生成时间：2026-05-04",
+        "生成时间：{}".format(datetime.now().strftime("%Y-%m-%d")),
         "",
         "## 报告说明",
         "这份报告单独分析 `run_improvement_experiments.py` 产出的逐步改进实验，不替代原课程总报告。",
-        "本轮新增训练采用 `quick` 预算以适应当前 CPU 环境：新增 RNN 变体使用较短训练轮数与更大 batch；`BiRNN / BiLSTM / TextCNN` 三个基线直接复用了主实验已有结果。",
+        build_report_note(experiments),
         "因此，这里更适合用于判断“改进方向是否值得继续”，如果你要把某个新变体写成最终主结论，建议再用完整预算复验一次。",
         "",
         "## 数据与评估",
@@ -174,10 +211,11 @@ def main() -> None:
     lines.extend(
         [
             "## 总结",
-            "1. 在当前代码和数据上，`BiRNN -> BiLSTM` 是明确有效的升级，测试集 F1 提升约 `+0.0242`。",
-            "2. `BiLSTM + Attention` 这次没有跑赢 `BiLSTM`，但它属于新增结构且只做了 quick 预算，后续还有继续调参空间。",
-            "3. `单卷积核 CNN -> TextCNN 多卷积核` 的收益最稳定，是本轮 CNN 路线里最值得保留到正式报告的结构改进。",
-            "4. 三种轻量增强里，`Word Dropout` 最稳，但在这次设置下仍未超过未增强 TextCNN；说明增强存在“强度过大或改写噪声过强”的问题。",
+        ]
+    )
+    lines.extend(summary_bullets(tracks))
+    lines.extend(
+        [
             "",
             "## 建议下一步",
             "1. 把 `BiLSTM + Attention` 用完整预算再跑一次，并单独搜索 `attention_dim`、`dropout` 和 `learning_rate`。",

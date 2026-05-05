@@ -311,6 +311,11 @@ def format_value(value: object) -> str:
     return str(value)
 
 
+def report_filename() -> str:
+    """返回当前最终报告文件名，避免说明文字与真实输出路径脱节。"""
+    return REPORT_PATH.name
+
+
 def build_ai_interaction_appendix(styles) -> List:
     """构建附录中的 AI 交互记录。"""
     blocks: List = [
@@ -552,6 +557,30 @@ def load_improvement_summary() -> Dict[str, object]:
     return json.loads(IMPROVEMENT_SUMMARY_PATH.read_text(encoding="utf-8"))
 
 
+def improvement_delta(summary: Dict[str, object], track: str, model_name: str) -> float:
+    """从改进实验汇总中提取指定模型相对上一阶段的测试集 F1 变化。"""
+    if summary is None:
+        return 0.0
+    for item in summary["tracks"][track]:
+        if item["model_name"] == model_name and item["delta_vs_reference"] is not None:
+            return float(item["delta_vs_reference"]["test_f1"])
+    return 0.0
+
+
+def improvement_reuse_note(summary: Dict[str, object]) -> str:
+    """根据汇总内容生成“是否复用已有结果”的说明。"""
+    if summary is None:
+        return ""
+    experiments = summary.get("experiments", [])
+    reused = [item for item in experiments if item.get("reused_existing_result")]
+    trained = [item for item in experiments if not item.get("reused_existing_result")]
+    if reused and trained:
+        return "考虑到这些实验属于追加分析，本节部分强基线直接复用了已有指标文件，其余新增结构按当前汇总记录的训练预算生成，因此这里更适合用来判断改进方向是否值得保留，而不直接替代主实验最终排名。"
+    if reused:
+        return "考虑到这些实验属于追加分析，本节结果全部来自已有指标文件的重新汇总，因此这里更适合用来判断改进方向是否值得保留，而不直接替代主实验最终排名。"
+    return "考虑到这些实验属于追加分析，本节结果全部来自当前训练预算下的新一轮运行，因此这里更适合用来判断改进方向是否值得保留，而不直接替代主实验最终排名。"
+
+
 def improvement_sort_key(item: Dict[str, object]) -> Tuple[int, int, str]:
     """按实验路线里的逻辑顺序稳定排序。"""
     preferred_order = {
@@ -652,6 +681,8 @@ def main():
         hyperparameter_tuning = ensure_hyperparameter_summary_fields(hyperparameter_tuning)
 
     improvement_summary = load_improvement_summary()
+    rnn_improvement_delta = improvement_delta(improvement_summary, "rnn", "bilstm")
+    cnn_improvement_delta = improvement_delta(improvement_summary, "cnn", "cnn")
 
     export_report_charts(
         OUTPUT_DIR / "report_assets",
@@ -667,7 +698,7 @@ def main():
     story.append(Spacer(1, 1.0 * cm))
     story.append(paragraph("课程：人工智能导论", styles, "MetaCN"))
     story.append(paragraph("实验主题：CNN 与 RNN 在情感分类任务中的应用与比较", styles, "MetaCN"))
-    story.append(paragraph("报告文件名：学号_姓名.pdf", styles, "MetaCN"))
+    story.append(paragraph("报告文件名：{}".format(report_filename()), styles, "MetaCN"))
     story.append(Spacer(1, 1.4 * cm))
 
     story.append(paragraph("摘要", styles, "HeadingCN"))
@@ -686,7 +717,10 @@ def main():
     )
     if improvement_summary is not None:
         abstract_text += (
-            "在主实验之外，本文还追加了“BiRNN→BiLSTM→BiLSTM+Attention”与“单卷积核 CNN→TextCNN→数据增强”两条改进路线；结果显示，BiLSTM 相比 BiRNN 的测试集 F1 提升约 0.024，而多卷积核 TextCNN 相比单卷积核 CNN 的测试集 F1 提升约 0.038，说明结构升级比轻量文本增强更稳定。"
+            "在主实验之外，本文还追加了“BiRNN→BiLSTM→BiLSTM+Attention”与“单卷积核 CNN→TextCNN→数据增强”两条改进路线；结果显示，BiLSTM 相比 BiRNN 的测试集 F1 提升约 {:.3f}，而多卷积核 TextCNN 相比单卷积核 CNN 的测试集 F1 提升约 {:.3f}，说明结构升级比轻量文本增强更稳定。".format(
+                rnn_improvement_delta,
+                cnn_improvement_delta,
+            )
         )
     abstract_text += (
         "进一步的超参数与跨域测试表明，门控循环结构在域内任务上整体较稳定，但当测试文本迁移到微博语体时，所有模型性能均明显下降，说明当前方法对领域分布偏移的适应能力仍然有限。"
@@ -903,7 +937,9 @@ def main():
 
         story.append(paragraph(improvement_heading, styles, "SubHeadingCN"))
         story.append(paragraph(
-            "为了把“结构优化”和“额外数据增强”写成一条更清晰的实验链路，本文在主实验之外补充了两组逐步改进实验：其一是沿着 `BiRNN → BiLSTM → BiLSTM + Attention` 验证循环结构升级；其二是沿着 `单卷积核 CNN → 多卷积核 TextCNN → TextCNN + 数据增强` 验证卷积结构和轻量增强的收益。考虑到这些实验属于追加分析，本节新增训练采用较紧凑的 quick 预算，而 BiRNN、BiLSTM 和 TextCNN 的强基线结果直接复用了主实验对应 checkpoint，因此这里更适合用来判断改进方向是否值得保留，而不直接替代主实验最终排名。",
+            "为了把“结构优化”和“额外数据增强”写成一条更清晰的实验链路，本文在主实验之外补充了两组逐步改进实验：其一是沿着 `BiRNN → BiLSTM → BiLSTM + Attention` 验证循环结构升级；其二是沿着 `单卷积核 CNN → 多卷积核 TextCNN → TextCNN + 数据增强` 验证卷积结构和轻量增强的收益。{}".format(
+                improvement_reuse_note(improvement_summary)
+            ),
             styles,
         ))
         story.append(paragraph("表{}-1  RNN 路线的逐步结构改进结果".format(improvement_table_prefix), styles, "CaptionCN"))

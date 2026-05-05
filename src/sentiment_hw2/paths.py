@@ -34,4 +34,4 @@ EXTERNAL_WEIBO_TEXT_PATH = EXTERNAL_DATA_DIR / "weibo_sentiment_100.txt"
 EXTERNAL_WEIBO_JSONL_PATH = EXTERNAL_DATA_DIR / "weibo_sentiment_100.jsonl"
 EXTERNAL_WEIBO_META_PATH = EXTERNAL_DATA_DIR / "weibo_sentiment_100_meta.json"
 
-REPORT_PATH = PROJECT_ROOT / "学号_姓名.pdf"
+REPORT_PATH = _prefer_existing(PROJECT_ROOT / "2023013015-许晴川.pdf", PROJECT_ROOT / "学号_姓名.pdf")

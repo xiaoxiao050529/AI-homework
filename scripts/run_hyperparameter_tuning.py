@@ -424,12 +424,6 @@ def serialize_spec(spec: TuningSpec) -> Dict[str, object]:
     return payload
 
 
-def metric_sort_key(item: Dict[str, object]) -> Tuple[float, float]:
-    """统一按测试 F1 优先、测试 Acc 次优先挑选最优解。"""
-    result = item["result"]
-    return result["test"]["f1"], result["test"]["accuracy"]
-
-
 def validation_sort_key(candidate: Dict[str, object]) -> Tuple[float, float]:
     """按验证集 F1 优先、验证集 Acc 次优先选择超参数。"""
     result = candidate["result"]
@@ -771,7 +765,7 @@ def main() -> None:
     specs["families"] = apply_available_parameter_coverage(specs["families"], variant_meta)
     parameter_groups = build_parameter_groups(specs["families"], baselines, variant_meta)
     best_by_family = build_best_by_family(parameter_groups)
-    overall_best_variant = max(variant_meta, key=metric_sort_key) if variant_meta else None
+    overall_best_variant = max(variant_meta, key=validation_sort_key) if variant_meta else None
 
     if args.families or args.parameters:
         union_families = merge_family_entries(specs["families"], previous_summary.get("families", []), "family")
@@ -784,7 +778,7 @@ def main() -> None:
         parameter_groups = build_parameter_groups(all_specs["families"], baseline_map, variant_meta)
         best_by_family = build_best_by_family(parameter_groups)
         specs["families"] = all_specs["families"]
-        overall_best_variant = max(variant_meta, key=metric_sort_key) if variant_meta else None
+        overall_best_variant = max(variant_meta, key=validation_sort_key) if variant_meta else None
 
     summary = {
         "device": str(device),

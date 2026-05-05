@@ -60,46 +60,243 @@ label token1 token2 token3 ...
 
 这部分数据用于测试模型跨域鲁棒性，不参与训练。
 
-## 3. 当前项目架构
+## 3. 当前代码架构
 
-### 3.1 顶层目录
+这一版仓库已经不是“单文件脚本”，而是按“入口层 -> 核心库层 -> 实验脚本层 -> 输出产物层”组织的。理解这一层之后，再看各个 `.py` 文件会快很多。
+
+### 3.1 总体分层
 
 - `main.py`
-  - 统一入口，直接运行主实验
+  - 最薄的一层入口
+  - 只负责把执行权交给 `scripts.run_experiments.main()`
 - `scripts/`
-  - 各类可执行脚本入口
+  - 面向命令行的实验入口层
+  - 每个脚本负责一个完整任务，例如主实验、调参、改进实验、报告生成、tmux 后台运行
 - `src/sentiment_hw2/`
-  - 核心实现代码
+  - 核心库层
+  - 真正的可复用逻辑都放在这里，包括数据处理、模型定义、训练循环、实验配置、报告绘图、增强策略
 - `data/`
-  - 训练、验证、测试数据和词向量
+  - 原始输入数据层
+  - 包含训练/验证/测试集、预训练词向量，以及外部鲁棒性测试样本
 - `outputs/`
-  - 训练结果、checkpoint、汇总 JSON
+  - 实验产物层
+  - 包含 checkpoint、metrics、汇总 JSON、报告素材、调参结果、缓存文件
 - `docs/`
-  - 课程说明和提交材料
+  - 课程说明与提交说明
 - `tools/`
   - 辅助检查脚本
 
-### 3.2 核心代码分层
+### 3.2 主流程执行链路
 
-`src/sentiment_hw2/` 的职责大致如下：
+默认运行 `./run.sh` 时，实际执行链路是：
 
-- `data.py`
-  - 读取数据集
-  - 构建训练词表
-  - 加载预训练词向量
-  - 把文本编码成张量
-- `models.py`
-  - 定义 `MeanPoolMLP`、`TextCNN`、`BiRNNClassifier`、`BiLSTMClassifier`、`BiGRUClassifier`
-- `train.py`
-  - 单模型训练、验证、早停、指标计算、checkpoint 保存
-- `experiment.py`
-  - 主实验配置
-  - 模型命名
-  - 固定鲁棒性样本测试
-- `paths.py`
-  - 项目内所有常用路径常量
-- `reporting.py` / `report_diagrams.py`
-  - 报告与图表生成辅助代码
+```text
+run.sh
+  -> main.py
+    -> scripts/run_experiments.py
+      -> prepare_data(...)              # 读取数据、建词表、抽取词向量、缓存 prepared_data.pt
+      -> build_main_model_specs(...)    # 生成主实验模型配置
+      -> train_single_model(...)        # 逐个模型训练、早停、保存 checkpoint 和 metrics
+      -> build_ablation_specs(...)      # 运行附加对比实验
+      -> run_robustness(...)            # 对已训练主模型做固定样本鲁棒性检查
+      -> outputs/experiment_summary.json
+```
+
+也就是说，主入口本身几乎不写业务逻辑，核心工作都被拆到了 `src/sentiment_hw2/` 里。
+
+### 3.3 核心库层 `src/sentiment_hw2/`
+
+#### `paths.py`
+
+- 统一维护项目中的常用路径常量
+- 例如 `TRAIN_PATH`、`VALIDATION_PATH`、`TEST_PATH`、`EMBEDDING_PATH`、`OUTPUT_DIR`
+- 通过 `_prefer_existing(...)` 兼容“文件放在标准目录”与“文件放在项目根目录”两种情况
+
+#### `data.py`
+
+负责整个数据准备链路：
+
+- `read_split()`
+  - 读取 `label token1 token2 ...` 格式的数据
+- `build_vocab()`
+  - 只基于训练集构建词表，避免验证集和测试集泄漏
+- `load_word2vec_subset()`
+  - 从大词向量二进制文件中只抽取当前词表真正需要的词
+- `_encode_samples()`
+  - 把 token 序列截断/补齐到固定长度，并编码成张量
+- `_build_embedding_matrix()`
+  - 用预训练向量初始化词表；OOV 词使用同分布随机向量
+- `prepare_data()`
+  - 串起整条数据准备流程
+  - 会把结果缓存到 `outputs/cache/prepared_data.pt`
+
+这里产出的 `PreparedData` 是后续所有实验共享的标准输入对象。
+
+#### `models.py`
+
+负责模型定义与参数初始化，当前仓库里的核心模型都在这里：
+
+- `MeanPoolMLP`
+  - `embedding -> masked mean pooling -> MLP classifier`
+- `TextCNN`
+  - 多卷积核提取局部 n-gram 特征
+- `TransformerEncoderClassifier`
+  - 轻量 Transformer Encoder 基线
+- `BiRNNClassifier` / `BiLSTMClassifier` / `BiGRUClassifier`
+  - 双向循环模型分类器
+
+这里有一个很关键的实现特点：
+
+- 循环模型不是完全依赖框架现成封装
+- 文件中实现了 `ManualRNNCell`、`ManualLSTMCell`、`ManualGRUCell`
+- 再由 `ManualBidirectionalRecurrentEncoder` 组织成双向多层编码器
+
+因此，这个仓库不只是“调用 PyTorch 现成层跑实验”，而是保留了一层手写循环单元实现，方便课程展示模型内部结构。
+
+#### `train.py`
+
+负责统一训练框架，是整个实验体系的核心调度模块之一：
+
+- `TrainConfig`
+  - 单个实验的训练超参数配置
+- `create_dataloaders()`
+  - 为 train / validation / test 构建 `DataLoader`
+- `compute_metrics()`
+  - 统一计算 `Accuracy`、`Precision`、`Recall`、`F1`
+- `evaluate()`
+  - 在验证集/测试集上做完整评估
+- `train_single_model()`
+  - 训练单个模型
+  - 支持 embedding 单独学习率
+  - 支持 label smoothing
+  - 支持 warmup + cosine 或 plateau scheduler
+  - 支持冻结 embedding 若干轮
+  - 支持早停、checkpoint 保存、history 记录
+
+项目里大多数实验脚本最后都会落到 `train_single_model()` 上，因此这部分相当于是“统一训练引擎”。
+
+#### `experiment.py`
+
+负责“实验编排”，而不是底层训练：
+
+- `ModelSpec`
+  - 把“模型构造器 + 训练配置 + 名称”打包
+- `build_main_model_specs()`
+  - 定义主实验默认训练的模型列表
+- `build_ablation_specs()`
+  - 定义附加对比实验
+- `build_transformer_spec()`
+  - 单独生成 Transformer 配置
+- `run_robustness()`
+  - 对固定样本集做统一推理检查
+
+换句话说：
+
+- `models.py` 决定“模型长什么样”
+- `train.py` 决定“怎么训练”
+- `experiment.py` 决定“这一轮到底训练哪些模型、用什么超参数”
+
+#### `augment.py`
+
+负责训练集增强，仅服务于改进实验：
+
+- `word_dropout`
+- `random_deletion`
+- `synonym_replacement`
+- `augment_prepared_training_data`
+
+这些增强只改训练切分，不改验证集和测试集。
+
+#### `reporting.py` / `report_diagrams.py`
+
+负责课程报告输出：
+
+- 生成表格、统计图、训练曲线、结构图
+- 输出到 `outputs/report_assets/`
+- 被 `scripts/generate_report.py` 调用，用于最终 PDF 报告拼装
+
+### 3.4 脚本层 `scripts/`
+
+这一层的特点是：每个脚本基本都对应一个“完整任务”。
+
+#### 主实验与评估
+
+- `run_experiments.py`
+  - 主实验总入口
+  - 训练主模型、附加对比实验，并生成 `experiment_summary.json`
+- `run_transformer_experiment.py`
+  - 单独训练 Transformer，并和已有主模型结果做效率对比
+- `evaluate_external_robustness.py`
+  - 使用外部数据集评测已训练模型的跨域鲁棒性
+
+#### 调参与改进实验
+
+- `run_hyperparameter_tuning.py`
+  - 五类模型的单变量调参
+  - 输出 `outputs/tuning/` 与 `hyperparameter_tuning_summary.json`
+- `run_recurrent_tuning_pipeline.py`
+  - 按参数顺序依次跑循环模型调参
+- `run_recurrent_tuning_parallel.py`
+  - 并行启动 `BiRNN` / `BiLSTM` / `BiGRU` 调参
+- `run_improvement_experiments.py`
+  - 跑“逐步改进”路线，例如 `BiLSTM + Attention`、`TextCNN + 数据增强`
+- `run_stopping_strategy_experiments.py`
+  - 对比固定轮数训练与早停策略
+
+#### 报告与数据辅助
+
+- `generate_report.py`
+  - 基于已有结果生成课程 PDF 报告
+- `generate_improvement_report.py`
+  - 根据 staged improvement 结果生成分析文档
+- `fetch_external_samples.py`
+  - 抓取并构造外部鲁棒性测试样本
+
+#### 长任务运行辅助
+
+- `run_in_tmux.py`
+  - 在 tmux 会话里后台运行长实验
+  - 日志写入 `outputs/tmux/logs/`
+  - 会话元信息写入 `outputs/tmux/sessions/`
+
+### 3.5 当前产物目录 `outputs/`
+
+当前 `outputs/` 已经不是单一结果目录，而是按用途分层的：
+
+- `outputs/*_best.pt`
+  - 单个实验的最佳 checkpoint
+- `outputs/*_metrics.json`
+  - 单个实验的训练/验证/测试指标与历史
+- `outputs/experiment_summary.json`
+  - 主实验总汇总
+- `outputs/external_robustness_metrics.json`
+  - 外部鲁棒性评估结果
+- `outputs/hyperparameter_tuning_summary.json`
+  - 调参汇总
+- `outputs/improvement_experiment_summary.json`
+  - 改进实验汇总
+- `outputs/transformer_efficiency_comparison.json`
+  - Transformer 与主模型的效率对比
+- `outputs/cache/`
+  - 数据缓存与 HuggingFace 特征缓存
+- `outputs/tuning/`
+  - 单变量调参产物
+- `outputs/report_assets/`
+  - 报告用图表和结构图
+- `outputs/recheck_current_main/`
+  - 一轮重检主实验的独立结果目录
+
+### 3.6 看代码时的推荐顺序
+
+如果你想快速理解整个仓库，推荐按下面顺序阅读：
+
+1. `main.py`
+2. `scripts/run_experiments.py`
+3. `src/sentiment_hw2/experiment.py`
+4. `src/sentiment_hw2/train.py`
+5. `src/sentiment_hw2/data.py`
+6. `src/sentiment_hw2/models.py`
+7. 再按需看 `augment.py`、`reporting.py`、其他 `scripts/`
 
 ## 4. 输入和输出
 
